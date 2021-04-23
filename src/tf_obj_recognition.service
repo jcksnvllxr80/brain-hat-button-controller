@@ -1,0 +1,23 @@
+# this file runs /home/pi/tf_obj_recognition as a service at boot time
+# 
+# to get it started:
+# 1. permissions must be 644 for the .service file (this one)
+# 2. sudo systemctl daemon-reload
+# 3. sudo systemctl enable /home/pi/tf_obj_recognition.service
+# 
+# Usage:
+# sudo systemctl start | status | stop | restart tf_obj_recognition
+# OR
+# sudo service tf_obj_recognition start | status | stop | restart
+
+[Unit]
+Description=tf_obj_recognition service (displays what camera sees and attempts to guess the object, prints guess screen, and speaks the guess
+After=local-fs.target basic.target
+
+[Service]
+Type=idle
+User=pi
+ExecStart=/usr/bin/nohup /bin/bash /home/pi/tf_obj_recognition 2>&1 &
+
+[Install]
+WantedBy=basic.target

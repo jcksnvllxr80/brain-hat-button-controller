@@ -21,10 +21,10 @@ for i,pin in enumerate(buttons):
 button, joyup, joydown, joyleft, joyright, joyselect = buttons
 
 while True:
-  x = None
+
   if not button.value:
     print("Button pressed")
-    x = subprocess.Popen(["/bin/bash", "/home/pi/start_tf_demo", "&"])
+    subprocess.Popen(["sersystemctl", "restart", "tf_obj_recognition"])
     time.sleep(0.35)
     print("PID=" + str(x.pid))
   if not joyup.value:
@@ -32,9 +32,7 @@ while True:
     time.sleep(0.35)
   if not joydown.value:
     print("Joystick down")
-    if x:
-       os.kill(x.pid, signal.SIGKILL)
-    x = None
+    subprocess.Popen(["sersystemctl", "stop", "tf_obj_recognition"])
     time.sleep(0.35)
   if not joyleft.value:
     print("Joystick left")
