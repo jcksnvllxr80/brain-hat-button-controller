@@ -24,7 +24,7 @@ while True:
 
   if not button.value:
     print("Button pressed")
-    subprocess.Popen(["sersystemctl", "restart", "tf_obj_recognition"])
+    subprocess.Popen(["systemctl", "restart", "tf_obj_recognition"])
     time.sleep(0.35)
     print("PID=" + str(x.pid))
   if not joyup.value:
@@ -32,7 +32,7 @@ while True:
     time.sleep(0.35)
   if not joydown.value:
     print("Joystick down")
-    subprocess.Popen(["sersystemctl", "stop", "tf_obj_recognition"])
+    subprocess.Popen(["systemctl", "stop", "tf_obj_recognition"])
     time.sleep(0.35)
   if not joyleft.value:
     print("Joystick left")
