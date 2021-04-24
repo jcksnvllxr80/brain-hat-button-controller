@@ -1,10 +1,14 @@
+#!/usr/bin/python
+
 import time
 import board
 from digitalio import DigitalInOut, Direction, Pull
 import subprocess
 import os
 import signal
+from picamera import PiCamera
 
+camera = None
 BUTTON_PIN = board.D17
 JOYDOWN_PIN = board.D27
 JOYLEFT_PIN = board.D22
@@ -21,27 +25,39 @@ for i,pin in enumerate(buttons):
 button, joyup, joydown, joyleft, joyright, joyselect = buttons
 
 while True:
-
+  p = None
   if not button.value:
     print("Button pressed")
-    subprocess.Popen(["systemctl", "restart", "tf_obj_recognition"])
+    if camera:
+      camera.stop_preview()
+      camera = None
+    p = subprocess.Popen("/home/pi/tf_obj_recognition")
     time.sleep(0.35)
-    print("PID=" + str(x.pid))
   if not joyup.value:
     print("Joystick up")
+    os.system("sudo shutdown -h now")
     time.sleep(0.35)
   if not joydown.value:
     print("Joystick down")
-    subprocess.Popen(["systemctl", "stop", "tf_obj_recognition"])
+    # os.system("sudo systemctl stop tf_obj_recognition")
+    if p:
+      p.terminate()
     time.sleep(0.35)
   if not joyleft.value:
     print("Joystick left")
+    if not camera:
+      camera = PiCamera()
+      camera.start_preview()
+    else:
+      camera.stop_preview()
+      camera = None
     time.sleep(0.35)
   if not joyright.value:
     print("Joystick right")
     time.sleep(0.35)
   if not joyselect.value:
     print("Joystick select")
+    os.system("sudo reboot now")
     time.sleep(0.35)
 
   time.sleep(0.01)

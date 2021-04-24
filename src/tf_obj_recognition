@@ -1,3 +1,4 @@
 #!/bin/bash
+
 cd /home/pi/rpi-vision && . .venv/bin/activate
 python3 /home/pi/rpi-vision/tests/pitft_labeled_output.py --tflite
