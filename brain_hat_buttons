@@ -38,6 +38,10 @@ def init_logging():
   logging_logger.addHandler(handler)
   return logging_logger
 
+def change_mode(new_mode='default'):
+  mode = new_mode
+  logger.info("Mode changed to " + mode)
+
 def start_tf_obj_recognition():
   pid = get_pid(pi_cam_preview_get_pid_str)
   if pid:
@@ -46,7 +50,7 @@ def start_tf_obj_recognition():
   subprocess.Popen("/home/pi/brain-hat-button-controller/tf_obj_recognition")
 
 def start_pi_cam_preview():
-  mode = 'camera'
+  change_mode('camera')
   subprocess.Popen("/home/pi/brain-hat-button-controller/pi_cam_preview")
 
 def video_recorder():
@@ -126,7 +130,7 @@ def kill_pid_or_start_func(get_pid_str, func):
   pid = get_pid(get_pid_str)
   if pid:
     kill_pid(pid)
-    mode = 'default'
+    change_mode()
   else:
     func()
 
