@@ -5,10 +5,8 @@ import board
 from digitalio import DigitalInOut, Direction, Pull
 import subprocess
 import os
-import signal
-from picamera import PiCamera
+import logging
 
-camera = None
 BUTTON_PIN = board.D17
 JOYDOWN_PIN = board.D27
 JOYLEFT_PIN = board.D22
@@ -23,41 +21,93 @@ for i,pin in enumerate(buttons):
   buttons[i].direction = Direction.INPUT
   buttons[i].pull = Pull.UP
 button, joyup, joydown, joyleft, joyright, joyselect = buttons
+pi_cam_preview_get_pid_str = "ps aux | grep -ivE \"(grep)\" | grep pi_cam_preview | awk \'{print $2}\'"
+tf_obj_recognition_pid_str = "ps aux | grep -ivE \"(grep|venv)\" | grep pitft_labeled_output.py | awk \'{print $2}\'"
 
-while True:
-  p = None
+def init_logging():
+    logging_logger = logging.getLogger(__name__)
+    logging_logger.setLevel(logging.DEBUG)
+    logging_logger.propagate = False
+    # create console handler and set level to info
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s [brain_hat_buttons] [%(levelname)-5.5s]  %(message)s")
+    handler.setFormatter(formatter)
+    logging_logger.addHandler(handler)
+    return logging_logger
+
+def start_tf_obj_recognition():
+  pid = get_pid(pi_cam_preview_get_pid_str)
+  if pid:
+    kill_pid(pid)
+  os.environ["DISPLAY"] = ":0"
+  subprocess.Popen("/home/pi/tf_obj_recognition")
+
+def start_pi_cam_preview():
+  # os.environ["DISPLAY"] = ":0"
+  subprocess.Popen("/home/pi/pi_cam_preview")
+  time.sleep(0.35)
+
+def joystick_up_handler():
+  os.system("sudo shutdown -h now")
+  time.sleep(0.35)
+
+def joystick_down_handler():
+    time.sleep(0.35)
+
+def joystick_left_handler():
+  # check to see if there is a pid file for pi_cam_preview, if its there kill it, else start it
+  pid = get_pid(pi_cam_preview_get_pid_str)
+  if pid:
+    kill_pid(pid)
+  else:
+    start_pi_cam_preview()
+  time.sleep(0.35)
+
+def joystick_right_handler():
+  time.sleep(0.35)
+
+def joystick_select_handler():
+  os.system("sudo reboot now")
+  time.sleep(0.35)
+
+def button_handler():
+  pid = get_pid(tf_obj_recognition_pid_str)
+  if pid:
+    kill_pid(pid)
+  else:
+    start_tf_obj_recognition()
+  time.sleep(0.35)
+
+def button_check():
   if not button.value:
-    print("Button pressed")
-    if camera:
-      camera.stop_preview()
-      camera = None
-    p = subprocess.Popen("/home/pi/tf_obj_recognition")
-    time.sleep(0.35)
+    logger.info("Button pressed")
+    button_handler()
   if not joyup.value:
-    print("Joystick up")
-    os.system("sudo shutdown -h now")
-    time.sleep(0.35)
+    logger.info("Joystick up")
+    joystick_up_handler()
   if not joydown.value:
-    print("Joystick down")
-    # os.system("sudo systemctl stop tf_obj_recognition")
-    if p:
-      p.terminate()
-    time.sleep(0.35)
+    logger.info("Joystick down")
+    joystick_down_handler()
   if not joyleft.value:
-    print("Joystick left")
-    if not camera:
-      camera = PiCamera()
-      camera.start_preview()
-    else:
-      camera.stop_preview()
-      camera = None
-    time.sleep(0.35)
+    logger.info("Joystick left")
+    joystick_left_handler()
   if not joyright.value:
-    print("Joystick right")
-    time.sleep(0.35)
+    logger.info("Joystick right")
+    joystick_right_handler()
   if not joyselect.value:
-    print("Joystick select")
-    os.system("sudo reboot now")
-    time.sleep(0.35)
+    logger.info("Joystick select")
+    joystick_select_handler()
 
-  time.sleep(0.01)
+def get_pid(get_pid_cmd_str):
+  return subprocess.check_output([get_pid_cmd_str], shell=True).decode().rstrip()
+
+def kill_pid(pid):
+  os.system("kill -9 " + str(pid))
+
+if __name__ == '__main__':
+  global logger
+  logger = init_logging()
+  while True:
+    button_check()
+    time.sleep(0.01)
