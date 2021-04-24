@@ -27,8 +27,8 @@ def init_logging():
 def init_web_app():
   CORS(app)
   app.config["DEBUG"] = True
+  logger.info("Starting pi_cam_app on ip:port --> " + web_app_ip + ':' + str(web_app_port))
   app.run(host=web_app_ip, port=int(web_app_port), use_reloader=False)
-  logger.info("Started pi_cam_app on ip:port --> " + web_app_ip + ':' + str(web_app_port))
 
 @app.route('/')
 def hello():
