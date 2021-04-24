@@ -1,9 +1,9 @@
-# this file runs /home/pi/brain_hat_buttons as a service at boot time
+# this file runs /home/pi/brain-hat-button-controller/brain_hat_buttons as a service at boot time
 # 
 # to get it started:
 # 1. permissions must be 644 for the .service file (this one)
 # 2. sudo systemctl daemon-reload
-# 3. sudo systemctl enable /home/pi/brain_hat_buttons.service
+# 3. sudo systemctl enable /home/pi/brain-hat-button-controller/brain_hat_buttons.service
 # 
 # Usage:
 # sudo systemctl start | status | stop | restart brain_hat_buttons
@@ -17,7 +17,7 @@ After=local-fs.target basic.target
 [Service]
 Type=idle
 User=pi
-ExecStart=/usr/bin/nohup /usr/bin/python /home/pi/brain_hat_buttons 2>&1 &
+ExecStart=/usr/bin/nohup /usr/bin/python /home/pi/brain-hat-button-controller/brain_hat_buttons 2>&1 &
 
 [Install]
 WantedBy=basic.target
