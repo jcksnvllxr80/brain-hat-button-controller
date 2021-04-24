@@ -6,6 +6,7 @@ from digitalio import DigitalInOut, Direction, Pull
 import subprocess
 import os
 import logging
+from datetime import datetime
 
 BUTTON_PIN = board.D17
 JOYDOWN_PIN = board.D27
@@ -44,60 +45,85 @@ def start_tf_obj_recognition():
   subprocess.Popen("/home/pi/tf_obj_recognition")
 
 def start_pi_cam_preview():
-  # os.environ["DISPLAY"] = ":0"
   subprocess.Popen("/home/pi/pi_cam_preview")
+
+def joystick_up_handler(was_long_press):
+  if was_long_press:
+    os.system("sudo shutdown -h now")
+  else:
+    pass
   time.sleep(0.35)
 
-def joystick_up_handler():
-  os.system("sudo shutdown -h now")
+def joystick_down_handler(was_long_press):
+  if was_long_press:
+    pass
+  else:
+    pass
   time.sleep(0.35)
 
-def joystick_down_handler():
-    time.sleep(0.35)
-
-def joystick_left_handler():
+def joystick_left_handler(was_long_press):
   # check to see if there is a pid file for pi_cam_preview, if its there kill it, else start it
-  pid = get_pid(pi_cam_preview_get_pid_str)
-  if pid:
-    kill_pid(pid)
+  if was_long_press:
+    pid = get_pid(pi_cam_preview_get_pid_str)
+    if pid:
+      kill_pid(pid)
+    else:
+      start_pi_cam_preview()
   else:
-    start_pi_cam_preview()
+    pass
   time.sleep(0.35)
 
-def joystick_right_handler():
-  time.sleep(0.35)
-
-def joystick_select_handler():
-  os.system("sudo reboot now")
-  time.sleep(0.35)
-
-def button_handler():
-  pid = get_pid(tf_obj_recognition_pid_str)
-  if pid:
-    kill_pid(pid)
+def joystick_right_handler(was_long_press):
+  if was_long_press:
+    pass
   else:
-    start_tf_obj_recognition()
+    pass
   time.sleep(0.35)
+
+def joystick_select_handler(was_long_press):
+  if was_long_press:
+    os.system("sudo reboot now")
+  else:
+    pass
+  time.sleep(0.35)
+
+def button_handler(was_long_press):
+  if was_long_press:
+    pid = get_pid(tf_obj_recognition_pid_str)
+    if pid:
+      kill_pid(pid)
+    else:
+      start_tf_obj_recognition()
+  else:
+    pass
+  time.sleep(0.35)
+
+def get_press_length(button, button_name):
+  long_pressed = 0
+  t_start = datetime.now()
+  while not button.value:
+    time.sleep(0.01)
+  t_end = datetime.now()
+  if (t_end - t_start).seconds < 1:
+    logger.info(button_name + " pressed")
+  else:
+    logger.info(button_name + " long-pressed")
+    long_pressed = 1
+  return long_pressed
 
 def button_check():
   if not button.value:
-    logger.info("Button pressed")
-    button_handler()
+    button_handler(get_press_length(button, "Button"))
   if not joyup.value:
-    logger.info("Joystick up")
-    joystick_up_handler()
+    joystick_up_handler(get_press_length(joyup, "Joystick up"))
   if not joydown.value:
-    logger.info("Joystick down")
-    joystick_down_handler()
+    joystick_down_handler(get_press_length(joydown, "Joystick down"))
   if not joyleft.value:
-    logger.info("Joystick left")
-    joystick_left_handler()
+    joystick_left_handler(get_press_length(joyleft, "Joystick left"))
   if not joyright.value:
-    logger.info("Joystick right")
-    joystick_right_handler()
+    joystick_right_handler(get_press_length(joyright, "Joystick right"))
   if not joyselect.value:
-    logger.info("Joystick select")
-    joystick_select_handler()
+    joystick_select_handler(get_press_length(joyselect, "Joystick select"))
 
 def get_pid(get_pid_cmd_str):
   return subprocess.check_output([get_pid_cmd_str], shell=True).decode().rstrip()
