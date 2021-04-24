@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import time
+import logging
 from picamera import PiCamera
 from flask_cors import CORS
 from flask import request, jsonify, Flask # package for the webapp
