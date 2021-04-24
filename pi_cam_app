@@ -2,6 +2,7 @@
 
 import time
 import logging
+from threading import Thread
 from picamera import PiCamera
 from flask_cors import CORS
 from flask import request, jsonify, Flask # package for the webapp
@@ -9,8 +10,12 @@ from flask import request, jsonify, Flask # package for the webapp
 camera = PiCamera()
 app = Flask(__name__)
 web_app_ip = '0.0.0.0'
-web_app_port = 8090
+web_app_port = 8099
 camera.start_preview()
+photo_effects = [ 'none', 'negative', 'solarize', 'sketch', 'denoise', 'emboss', 'oilpaint', 'hatch', 'gpen', 'pastel', 
+  'watercolor', 'film', 'blur', 'saturation', 'colorswap', 'washedout', 'posterise', 'colorpoint', 
+  'colorbalance', 'cartoon', 'deinterlace1', 'deinterlace2' ]
+current_effect = photo_effects[0]
 
 def init_logging():
   logging_logger = logging.getLogger(__name__)
@@ -32,7 +37,59 @@ def init_web_app():
 
 @app.route('/')
 def hello():
-  return 'Hello, World!'
+  return 'Hello, from pi_cam_app!'
+
+@app.route('/pi_cam_app/photo_effect_next/<current_effect>/<direction>', methods=['GET'])
+def next_photo_effect(current_effect, direction):
+  message = handle_next_effect_request(current_effect, direction)
+  return jsonify(display_message=message)
+
+@app.route('/help', methods=['GET'])
+def help_request():
+  message = "This is the help message."
+  logger.info(message)
+  return jsonify(display_message=message)
+
+@app.errorhandler(404)
+def page_not_found(e):
+  logger.error("404: The resource could not be found.")
+  return jsonify(display_message="Error.")
+
+def handle_next_effect_request(current_effect, direction):
+  if direction in ['left', 'right']:
+    go_to_next_effect(current_effect, direction)
+  else:
+    logger.warn("No action taken for invalid direction: " + direction)
+
+def go_to_next_effect(current_effect, dir):
+  current_effect_ind = photo_effects.index(current_effect)
+  if dir == 'left':
+    if current_effect_ind == 0:
+      next_effect = photo_effects[len(photo_effects) - 1]
+    else:
+      next_effect = photo_effects[current_effect_ind - 1]
+  else:
+    if current_effect_ind == len(photo_effects) - 1:
+      next_effect = photo_effects[0]
+    else:
+      next_effect = photo_effects[current_effect_ind + 1]
+  current_effect = next_effect
+  set_photo_effect(next_effect)
+  msg = "Changed effect to the next one to the " + dir + ", " + next_effect
+  logger.info(msg)
+  return msg
+
+def set_photo_effect(effect):
+  camera.image_effect = effect
+  x = Thread(target=set_image_text, args=('set_image_text', 3, effect))
+  x.start()
+
+def set_image_text(thread_name, wait_seconds, effect_name):
+  logger.info("Thread \'%s\': starting", thread_name)
+  camera.annotate_text = "Effect: %s" % effect_name
+  time.sleep(wait_seconds)
+  camera.annotate_text = ''
+  logger.info("Thread \'%s\': finishing", thread_name)
 
 if __name__ == '__main__':
   global logger
