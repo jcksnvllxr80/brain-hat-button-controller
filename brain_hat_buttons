@@ -15,6 +15,7 @@ JOYUP_PIN = board.D23
 JOYRIGHT_PIN = board.D24
 JOYSELECT_PIN = board.D16
 
+mode = 'default'
 buttons = [BUTTON_PIN, JOYUP_PIN, JOYDOWN_PIN,
            JOYLEFT_PIN, JOYRIGHT_PIN, JOYSELECT_PIN]
 for i,pin in enumerate(buttons):
@@ -26,16 +27,16 @@ pi_cam_preview_get_pid_str = "ps aux | grep -ivE \"(grep)\" | grep pi_cam_previe
 tf_obj_recognition_pid_str = "ps aux | grep -ivE \"(grep|venv)\" | grep pitft_labeled_output.py | awk \'{print $2}\'"
 
 def init_logging():
-    logging_logger = logging.getLogger(__name__)
-    logging_logger.setLevel(logging.DEBUG)
-    logging_logger.propagate = False
-    # create console handler and set level to info
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s [brain_hat_buttons] [%(levelname)-5.5s]  %(message)s")
-    handler.setFormatter(formatter)
-    logging_logger.addHandler(handler)
-    return logging_logger
+  logging_logger = logging.getLogger(__name__)
+  logging_logger.setLevel(logging.DEBUG)
+  logging_logger.propagate = False
+  # create console handler and set level to info
+  handler = logging.StreamHandler()
+  handler.setLevel(logging.INFO)
+  formatter = logging.Formatter("%(asctime)s [brain_hat_buttons] [%(levelname)-5.5s]  %(message)s")
+  handler.setFormatter(formatter)
+  logging_logger.addHandler(handler)
+  return logging_logger
 
 def start_tf_obj_recognition():
   pid = get_pid(pi_cam_preview_get_pid_str)
@@ -45,58 +46,48 @@ def start_tf_obj_recognition():
   subprocess.Popen("/home/pi/brain-hat-button-controller/tf_obj_recognition")
 
 def start_pi_cam_preview():
+  mode = 'camera'
   subprocess.Popen("/home/pi/brain-hat-button-controller/pi_cam_preview")
 
+def video_recorder():
+  # TODO: record movie (might need a new script for this that is very similar to pi_cam_preview)
+  # if already recording a video, then stop, else start recording
+  pass
+
+def stopmotion_animation():
+  # TODO: make stop motion animation (might need a new script for this that is very similar to pi_cam_preview)
+  # if already making stop motion animation, then stop, else start recording
+  pass
+
+def photo():
+  # if already making stop motion animation, then stop, else start recording
+  # TODO: if in camera mode, take photo and save to ~/Desktop/images, 
+  # elseif in stopmotion mode, add frame ti ~/stopmotion, when done make video and clean up files
+  pass
+
+def obj_recognition():
+  kill_pid_or_start_func(tf_obj_recognition_pid_str, start_tf_obj_recognition)
+
+def pi_cam_preview():
+  kill_pid_or_start_func(pi_cam_preview_get_pid_str, start_pi_cam_preview)
+
 def joystick_up_handler(was_long_press):
-  if was_long_press:
-    os.system("sudo shutdown -h now")
-  else:
-    pass
-  time.sleep(0.35)
+  short_or_long_press_func(was_long_press, pass_func, shutdown)
 
 def joystick_down_handler(was_long_press):
-  if was_long_press:
-    pass
-  else:
-    pass
-  time.sleep(0.35)
+  short_or_long_press_func(was_long_press, pass_func, stopmotion_animation)
 
 def joystick_left_handler(was_long_press):
-  # check to see if there is a pid file for pi_cam_preview, if its there kill it, else start it
-  if was_long_press:
-    pid = get_pid(pi_cam_preview_get_pid_str)
-    if pid:
-      kill_pid(pid)
-    else:
-      start_pi_cam_preview()
-  else:
-    pass
-  time.sleep(0.35)
+  short_or_long_press_func(was_long_press, pass_func, pi_cam_preview)
 
 def joystick_right_handler(was_long_press):
-  if was_long_press:
-    pass
-  else:
-    pass
-  time.sleep(0.35)
+  short_or_long_press_func(was_long_press, pass_func, video_recorder)
 
 def joystick_select_handler(was_long_press):
-  if was_long_press:
-    os.system("sudo reboot now")
-  else:
-    pass
-  time.sleep(0.35)
+  short_or_long_press_func(was_long_press, pass_func, reboot)
 
 def button_handler(was_long_press):
-  if was_long_press:
-    pid = get_pid(tf_obj_recognition_pid_str)
-    if pid:
-      kill_pid(pid)
-    else:
-      start_tf_obj_recognition()
-  else:
-    pass
-  time.sleep(0.35)
+  short_or_long_press_func(was_long_press, photo, obj_recognition)
 
 def get_press_length(button, button_name):
   long_pressed = 0
@@ -130,6 +121,30 @@ def get_pid(get_pid_cmd_str):
 
 def kill_pid(pid):
   os.system("kill -9 " + str(pid))
+
+def kill_pid_or_start_func(get_pid_str, func):
+  pid = get_pid(get_pid_str)
+  if pid:
+    kill_pid(pid)
+    mode = 'default'
+  else:
+    func()
+
+def short_or_long_press_func(was_long_press, short_func, long_func):
+  if was_long_press:
+    long_func()
+  else:
+    short_func()
+  time.sleep(0.35)
+
+def reboot():
+  os.system("sudo reboot now")
+
+def shutdown():
+  os.system("sudo shutdown -h now")
+
+def pass_func():
+  pass
 
 if __name__ == '__main__':
   global logger
