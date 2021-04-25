@@ -124,15 +124,14 @@ def handle_take_photo_request(filename):
 
 def change_res_and_shoot(filepath):
   original_fps = camera.framerate
+  orig_x, orig_y = camera.framerate
   set_resolution(2028, 1520, 24)
   camera.capture(filepath)
-  set_resolution(480, 480, original_fps)
+  set_resolution(orig_x, orig_y, original_fps)
 
 def set_resolution(x, y, fps):
-  # camera.stop_preview()
   camera.resolution = (x, y)
   camera.framerate = fps
-  # camera.start_preview()
 
 def handle_next_effect_request(current_effect, direction):
   if direction in ['left', 'right']:
