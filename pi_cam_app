@@ -14,8 +14,12 @@ camera.start_preview()
 photo_effects = [ 'none', 'negative', 'solarize', 'sketch', 'denoise', 'emboss', 'oilpaint', 'hatch', 'gpen', 'pastel', 
   'watercolor', 'film', 'blur', 'saturation', 'colorswap', 'washedout', 'posterise', 'colorpoint', 
   'colorbalance', 'cartoon', 'deinterlace1', 'deinterlace2' ]
-HOME_DIR = "/home/pi/brain-hat-button-controller/"
-CONFIG_FILE = HOME_DIR + "conf/application.yaml"
+HOME_DIR = "/home/pi/"
+IMAGES_DIR = HOME_DIR + "Desktop/Pictures/"
+VIDEO_DIR = HOME_DIR + "Desktop/Videos/"
+STOPMOTION_DIR = HOME_DIR + "stopmotion/"
+APP_DIR = HOME_DIR + "brain-hat-button-controller/"
+CONFIG_FILE = APP_DIR + "conf/application.yaml"
 pi_cam_app_settings = {}
 
 def init_logging():
@@ -55,9 +59,9 @@ def read_config_file():
 def hello():
   return 'Hello, from pi_cam_app!'
 
-@app.route('/take_photo/<directory>/<filename>', methods=['GET'])
-def take_photo_request(directory, filename):
-  message = handle_take_photo_request(directory, filename)
+@app.route('/take_photo/<filename>', methods=['GET'])
+def take_photo_request(filename):
+  message = handle_take_photo_request(filename)
   logger.info(message)
   return message
 
@@ -78,8 +82,8 @@ def page_not_found(e):
   logger.error("404: The resource could not be found.")
   return jsonify(display_message="Error.")
 
-def handle_take_photo_request(dir, filename):
-  filepath = "{0}{1}".format(dir, filename)
+def handle_take_photo_request(filename):
+  filepath = "{0}{1}".format(IMAGES_DIR, filename)
   try:
     camera.capture(filepath)
     message = "{0} written successfully!".format(filepath)

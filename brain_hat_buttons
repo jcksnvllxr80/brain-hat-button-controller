@@ -29,9 +29,6 @@ for i,pin in enumerate(buttons):
 button, joyup, joydown, joyleft, joyright, joyselect = buttons
 pi_cam_preview_get_pid_str = "ps aux | grep -ivE \"(grep)\" | grep pi_cam_app | awk \'{print $2}\'"
 tf_obj_recognition_pid_str = "ps aux | grep -ivE \"(grep|venv)\" | grep pitft_labeled_output.py | awk \'{print $2}\'"
-IMAGES_DIR = "/home/pi/Desktop/Pictures/"
-VIDEO_DIR = "/home/pi/Desktop/Videos/"
-STOPMOTION_DIR = "/home/pi/stopmotion/"
 HOME_DIR = "/home/pi/brain-hat-button-controller/"
 CONFIG_FILE = HOME_DIR + "conf/application.yaml"
 pi_cam_app_settings = {}
@@ -91,14 +88,14 @@ def stopmotion_animation():
 
 def photo():
   if mode == 'camera':
-    logger.info("Taking photo, saving to {0}".format(IMAGES_DIR))
+    logger.info("Taking photo")
     filename = create_new_unique_filename()
-    api_call_str = "http://127.0.0.1:{0}/take_photo/{1}/{2}".format(pi_cam_app_settings['port'], IMAGES_DIR, filename)
+    api_call_str = "http://127.0.0.1:{0}/take_photo/{1}/{2}".format(pi_cam_app_settings['port'], filename)
     logger.info("Making a GET call to \'{0}\'".format(api_call_str))
     response = requests.get(api_call_str)
     logger.info("Response from api call: {0}".format(response.content.decode("utf-8")))
   elif mode == 'stopmotion':
-    logger.info("Adding stopmotion frame to {0}".format(STOPMOTION_DIR))
+    logger.info("Adding stopmotion frame")
     # TODO: add frame to ~/stopmotion, when leaving stopmotion make video and clean up dir
   else:
     logger.warning("Mode not correct for the use of this function")
