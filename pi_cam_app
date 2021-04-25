@@ -129,14 +129,10 @@ def change_res_and_shoot(filepath):
   set_resolution(480, 480, original_fps)
 
 def set_resolution(x, y, fps):
-  global camera
-  camera.stop_preview()
-  # camera.close()
-  # camera = PiCamera()
+  # camera.stop_preview()
   camera.resolution = (x, y)
   camera.framerate = fps
-  # time.sleep(5)
-  camera.start_preview()
+  # camera.start_preview()
 
 def handle_next_effect_request(current_effect, direction):
   if direction in ['left', 'right']:
