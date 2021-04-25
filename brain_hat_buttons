@@ -46,9 +46,7 @@ def init_logging():
   return logging_logger
 
 def config():
-  global mode
   global pi_cam_app_settings
-  global current_effect
   config_file = read_config_file()
   # read config dict's into more specific variables
   pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].items()}
@@ -61,6 +59,7 @@ def read_config_file():
   return config_file
 
 def change_mode(new_mode='default'):
+  global mode
   mode = new_mode
   logger.info("Mode changed to " + mode)
 
@@ -104,6 +103,7 @@ def right_effect():
   next_effect('right')
 
 def next_effect(dir):
+  global current_effect
   logger.debug("Mode is " + mode)
   if mode == 'camera':
     api_call_str = "http://127.0.0.1:%s/photo_effect_next/%s/%s" % pi_cam_app_settings['port'], current_effect, dir
