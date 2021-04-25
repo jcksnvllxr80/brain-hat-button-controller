@@ -58,7 +58,7 @@ def hello():
 @app.route('/photo_effect_next/<current_effect>/<direction>', methods=['GET'])
 def next_photo_effect(current_effect, direction):
   message = handle_next_effect_request(current_effect, direction)
-  return jsonify(display_message=message)
+  return message
 
 @app.route('/help', methods=['GET'])
 def help_request():
@@ -73,7 +73,7 @@ def page_not_found(e):
 
 def handle_next_effect_request(current_effect, direction):
   if direction in ['left', 'right']:
-    go_to_next_effect(current_effect, direction)
+    return go_to_next_effect(current_effect, direction)
   else:
     logger.warn("No action taken for invalid direction: " + direction)
 
