@@ -124,7 +124,7 @@ def handle_take_photo_request(filename):
 
 def change_res_and_shoot(filepath):
   original_fps = camera.framerate
-  set_resolution(4056, 3040, 10)
+  set_resolution(4056, 3040, 5)
   camera.capture(filepath)
   set_resolution(480, 480, original_fps)
 
