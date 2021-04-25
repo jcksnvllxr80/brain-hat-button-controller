@@ -10,7 +10,7 @@ from picamera import PiCamera
 from flask_cors import CORS
 from flask import request, jsonify, Flask # package for the webapp
 
-camera = PiCamera()
+camera = None
 app = Flask(__name__)
 photo_effects = [ 'none', 'negative', 'solarize', 'sketch', 'denoise', 'emboss', 'oilpaint', 'hatch', 'gpen', 'pastel', 
   'watercolor', 'film', 'blur', 'saturation', 'colorswap', 'washedout', 'posterise', 'colorpoint', 
