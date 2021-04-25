@@ -171,10 +171,10 @@ def kill_pid_or_start_func(get_pid_str, func):
 
 def short_or_long_press_func(was_long_press, short_func, long_func):
   if was_long_press:
-    logger.debug("Running long function, " + long_func)
+    logger.debug("Running long function, %s" % long_func)
     long_func()
   else:
-    logger.debug("Running short function, " + short_func)
+    logger.debug("Running short function, %s" % short_func)
     short_func()
   time.sleep(0.35)
 
