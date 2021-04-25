@@ -110,7 +110,7 @@ def next_effect(dir):
     logger.info("Making a GET call to \'{0}\'".format(api_call_str))
     response = requests.get(api_call_str)
     current_effect = response.content
-    logger.info("Photo effect changed to " + current_effect)
+    logger.info("Photo effect changed to {0}".format(current_effect))
   else:
     logger.warning("Mode not correct for the use of this function")
 
