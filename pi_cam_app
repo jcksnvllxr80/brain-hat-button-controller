@@ -123,11 +123,11 @@ def handle_take_photo_request(filename):
   return message
 
 def change_res_and_shoot(filepath):
-  # camera.stop_preview()
+  camera.stop_preview()
   camera.resolution = (4056, 3040)
   camera.capture(filepath)
   camera.resolution = (480, 480)
-  # camera.start_preview()
+  camera.start_preview()
 
 def handle_next_effect_request(current_effect, direction):
   if direction in ['left', 'right']:
