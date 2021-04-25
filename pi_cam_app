@@ -75,7 +75,7 @@ def handle_next_effect_request(current_effect, direction):
   if direction in ['left', 'right']:
     return go_to_next_effect(current_effect, direction)
   else:
-    logger.warn("No action taken for invalid direction: " + direction)
+    logger.warning("No action taken for invalid direction: " + direction)
 
 def go_to_next_effect(current_effect, dir):
   current_effect_ind = photo_effects.index(current_effect)
@@ -101,11 +101,11 @@ def set_photo_effect(effect):
   x.start()
 
 def set_image_text(thread_name, wait_seconds, effect_name):
-  logger.info("Thread \'%s\': starting", thread_name)
-  camera.annotate_text = "Effect: %s" % effect_name
+  logger.info("Thread \'{0}\': starting".format(thread_name))
+  camera.annotate_text = "Effect: {0}".format(effect_name)
   time.sleep(wait_seconds)
   camera.annotate_text = ''
-  logger.info("Thread \'%s\': finishing", thread_name)
+  logger.info("Thread \'{0}\': finishing".format(thread_name))
 
 if __name__ == '__main__':
   global logger
