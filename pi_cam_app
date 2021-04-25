@@ -36,10 +36,12 @@ def setup():
   pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].items()}
 
 def init_web_app():
+  web_app_ip = pi_cam_app_settings['ip']
+  web_app_port = pi_cam_app_settings['port']
   CORS(app)
   app.config["DEBUG"] = True
   logger.info("Starting pi_cam_app on ip:port --> " + web_app_ip + ':' + str(web_app_port))
-  app.run(host=pi_cam_app_settings['ip'], port=int(pi_cam_app_settings['port']), use_reloader=False)
+  app.run(host=web_app_ip, port=int(web_app_port), use_reloader=False)
 
 def read_config_file():
   # read config yaml file into dictionaries
