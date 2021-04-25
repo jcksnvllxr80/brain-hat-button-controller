@@ -102,6 +102,7 @@ def right_effect():
   next_effect('right')
 
 def next_effect(dir):
+  logger.debug("Mode is " + mode)
   if mode == 'camera':
     api_call_str = "http://127.0.0.1:%s/photo_effect_next/%s/%s" % pi_cam_app_settings['port'], current_effect, dir
     logger.info("Making a GET call to \'%s\'" % api_call_str)
