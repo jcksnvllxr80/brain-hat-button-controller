@@ -17,8 +17,8 @@ photo_effects = [ 'none', 'negative', 'solarize', 'sketch', 'denoise', 'emboss',
   'watercolor', 'film', 'blur', 'saturation', 'colorswap', 'washedout', 'posterise', 'colorpoint', 
   'colorbalance', 'cartoon', 'deinterlace1', 'deinterlace2' ]
 HOME_DIR = "/home/pi/"
-IMAGES_DIR = HOME_DIR + "Desktop/Pictures/"
-VIDEO_DIR = HOME_DIR + "Desktop/Videos/"
+IMAGES_DIR = HOME_DIR + "Pictures/"
+VIDEO_DIR = HOME_DIR + "Videos/"
 STOPMOTION_DIR = HOME_DIR + "stopmotion/"
 APP_DIR = HOME_DIR + "brain-hat-button-controller/"
 CONFIG_FILE = APP_DIR + "conf/application.yaml"
