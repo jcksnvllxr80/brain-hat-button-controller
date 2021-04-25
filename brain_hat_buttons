@@ -90,7 +90,7 @@ def photo():
   if mode == 'camera':
     logger.info("Taking photo")
     filename = create_new_unique_filename()
-    api_call_str = "http://127.0.0.1:{0}/take_photo/{2}".format(pi_cam_app_settings['port'], filename)
+    api_call_str = "http://127.0.0.1:{0}/take_photo/{1}".format(pi_cam_app_settings['port'], filename)
     logger.info("Making a GET call to \'{0}\'".format(api_call_str))
     response = requests.get(api_call_str)
     logger.info("Response from api call: {0}".format(response.content.decode("utf-8")))
