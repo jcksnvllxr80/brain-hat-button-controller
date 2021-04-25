@@ -88,6 +88,8 @@ def handle_take_photo_request(filename):
     camera.capture(filepath)
     message = "{0} written successfully!".format(filepath)
   except:
+    exc_type, exc_value, exc_tb = sys.exc_info()
+    exception_handler(exc_type, exc_value, exc_tb)
     message = "{0} not successfully written!".format(filepath)
   return message
 
@@ -126,6 +128,11 @@ def set_image_text(thread_name, wait_seconds, effect_name):
   time.sleep(wait_seconds)
   camera.annotate_text = ''
   logger.info("Thread \'{0}\': finishing".format(thread_name))
+
+def exception_handler(exc_type, exc_value, exc_tb):
+  err_str = str(format_exception(exc_type, exc_value, exc_tb))
+  error_log = "An exception was encountered: " + err_str
+  logger.error(error_log)
 
 if __name__ == '__main__':
   global logger
