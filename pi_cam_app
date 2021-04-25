@@ -41,6 +41,11 @@ def init_web_app():
   logger.info("Starting pi_cam_app on ip:port --> " + web_app_ip + ':' + str(web_app_port))
   app.run(host=pi_cam_app_settings['ip'], port=int(pi_cam_app_settings['port']), use_reloader=False)
 
+def read_config_file():
+  # read config yaml file into dictionaries
+  with open(CONFIG_FILE, 'r') as ymlfile:
+    config_file = yaml.full_load(ymlfile)
+
 @app.route('/')
 def hello():
   return 'Hello, from pi_cam_app!'

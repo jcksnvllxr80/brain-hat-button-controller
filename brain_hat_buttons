@@ -50,6 +50,11 @@ def config():
   # read config dict's into more specific variables
   pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].iteritems()}
 
+def read_config_file():
+  # read config yaml file into dictionaries
+  with open(CONFIG_FILE, 'r') as ymlfile:
+    config_file = yaml.full_load(ymlfile)
+
 def change_mode(new_mode='default'):
   mode = new_mode
   logger.info("Mode changed to " + mode)
