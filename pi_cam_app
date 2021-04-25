@@ -10,7 +10,7 @@ from picamera import PiCamera
 from flask_cors import CORS
 from flask import request, jsonify, Flask # package for the webapp
 
-camera = None
+camera = PiCamera()
 app = Flask(__name__)
 photo_effects = [ 'none', 'negative', 'solarize', 'sketch', 'denoise', 'emboss', 'oilpaint', 'hatch', 'gpen', 'pastel', 
   'watercolor', 'film', 'blur', 'saturation', 'colorswap', 'washedout', 'posterise', 'colorpoint', 
@@ -100,7 +100,8 @@ def handle_is_previewing_request():
 def handle_pi_cam_preview_request(action):
   global camera
   if action == "start":
-    camera = PiCamera()
+    if camera.closed:
+      camera = PiCamera()
     camera.start_preview()
     msg = "Started pi cam preview."
   else:
