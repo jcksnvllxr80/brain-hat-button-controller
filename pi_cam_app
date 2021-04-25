@@ -12,7 +12,6 @@ from flask import request, jsonify, Flask # package for the webapp
 
 camera = PiCamera()
 app = Flask(__name__)
-camera.start_preview()
 photo_effects = [ 'none', 'negative', 'solarize', 'sketch', 'denoise', 'emboss', 'oilpaint', 'hatch', 'gpen', 'pastel', 
   'watercolor', 'film', 'blur', 'saturation', 'colorswap', 'washedout', 'posterise', 'colorpoint', 
   'colorbalance', 'cartoon', 'deinterlace1', 'deinterlace2' ]
@@ -61,6 +60,16 @@ def read_config_file():
 def hello():
   return 'Hello, from pi_cam_app!'
 
+@app.route('/pi_cam_preview/<action>', methods=['GET'])
+def pi_cam_preview_request(action):
+  message = handle_pi_cam_preview_request(action)
+  logger.info(message)
+  return message
+
+@app.route('/is_previewing', methods=['GET'])
+def is_previewing_request():
+  return handle_is_previewing_request()
+
 @app.route('/take_photo/<filename>', methods=['GET'])
 def take_photo_request(filename):
   message = handle_take_photo_request(filename)
@@ -83,6 +92,19 @@ def help_request():
 def page_not_found(e):
   logger.error("404: The resource could not be found.")
   return jsonify(display_message="Error.")
+
+def handle_is_previewing_request():
+  preview = True if camera.previewing() else False
+  message = "Camera in preview: {0}".format(preview)
+  logger.info(message)
+  return preview
+
+def handle_pi_cam_preview_request(action):
+  if action == "start":
+    camera.start_preview()
+  else:
+    camera.stop_preview()
+    camera.close()
 
 def handle_take_photo_request(filename):
   filepath = "{0}{1}".format(IMAGES_DIR, filename)
