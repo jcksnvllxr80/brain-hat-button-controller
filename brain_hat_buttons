@@ -109,6 +109,8 @@ def next_effect(dir):
     response = requests.get(api_call_str)
     current_effect = response.content
     logger.info("Photo effect changed to " + current_effect)
+  else:
+    logger.warn("Mode not correct for the use of this function."
 
 def joystick_up_handler(was_long_press):
   short_or_long_press_func(was_long_press, pass_func, shutdown)
