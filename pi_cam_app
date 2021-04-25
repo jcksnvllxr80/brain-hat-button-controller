@@ -98,7 +98,9 @@ def handle_is_previewing_request():
   return str(preview)
 
 def handle_pi_cam_preview_request(action):
+  global camera
   if action == "start":
+    camera = PiCamera()
     camera.start_preview()
     msg = "Started pi cam preview."
   else:
