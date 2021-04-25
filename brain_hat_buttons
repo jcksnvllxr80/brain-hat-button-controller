@@ -52,8 +52,10 @@ def config():
 
 def read_config_file():
   # read config yaml file into dictionaries
+  config_file = None
   with open(CONFIG_FILE, 'r') as ymlfile:
     config_file = yaml.full_load(ymlfile)
+  return config_file
 
 def change_mode(new_mode='default'):
   mode = new_mode
