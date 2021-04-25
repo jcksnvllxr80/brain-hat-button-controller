@@ -109,7 +109,7 @@ def next_effect(dir):
     api_call_str = "http://127.0.0.1:{0}/photo_effect_next/{1}/{2}".format(pi_cam_app_settings['port'], current_effect, dir)
     logger.info("Making a GET call to \'{0}\'".format(api_call_str))
     response = requests.get(api_call_str)
-    current_effect = response.content
+    current_effect = response.content.decode("utf-8") 
     logger.info("Photo effect changed to {0}".format(current_effect))
   else:
     logger.warning("Mode not correct for the use of this function")
