@@ -86,7 +86,7 @@ def pi_cam_preview(action):
   api_call_str = "http://127.0.0.1:{0}/pi_cam_preview/{1}".format(pi_cam_app_settings['port'], action)
   logger.info("Making a GET call to \'{0}\'".format(api_call_str))
   response = requests.get(api_call_str)
-  logger.info("Requesting to {0} the pi cam preview".format(response.content.decode("utf-8")))
+  logger.info("Response from api call: {0}".format(response.content.decode("utf-8")))
 
 def pi_cam_is_previewing():
   api_call_str = "http://127.0.0.1:{0}/is_previewing".format(pi_cam_app_settings['port'])

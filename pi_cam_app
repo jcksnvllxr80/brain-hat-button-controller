@@ -102,9 +102,11 @@ def handle_is_previewing_request():
 def handle_pi_cam_preview_request(action):
   if action == "start":
     camera.start_preview()
+    logger.info("Started pi cam preview.")
   else:
     camera.stop_preview()
     camera.close()
+    logger.info("Stopped and closed pi cam preview.")
 
 def handle_take_photo_request(filename):
   filepath = "{0}{1}".format(IMAGES_DIR, filename)
