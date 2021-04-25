@@ -46,6 +46,7 @@ def init_logging():
   return logging_logger
 
 def config():
+  global pi_cam_app_settings
   config_file = read_config_file()
   # read config dict's into more specific variables
   pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].items()}
@@ -101,9 +102,11 @@ def right_effect():
   next_effect('right')
 
 def next_effect(dir):
+  global current_effect
   if mode == 'camera':
     response = requests.get("http://127.0.0.1:%s/photo_effect_next/%s/%s" % pi_cam_app_settings['port'], current_effect, dir)
     current_effect = response.content
+    logger.info("Photo effect changed to " + current_effect)
 
 def joystick_up_handler(was_long_press):
   short_or_long_press_func(was_long_press, pass_func, shutdown)
