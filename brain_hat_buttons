@@ -39,7 +39,7 @@ def init_logging():
   logging_logger.propagate = False
   # create console handler and set level to info
   handler = logging.StreamHandler()
-  handler.setLevel(logging.INFO)
+  handler.setLevel(logging.DEBUG)
   formatter = logging.Formatter("%(asctime)s [brain_hat_buttons] [%(levelname)-5.5s]  %(message)s")
   handler.setFormatter(formatter)
   logging_logger.addHandler(handler)
