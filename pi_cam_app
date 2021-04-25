@@ -62,9 +62,7 @@ def hello():
 
 @app.route('/pi_cam_preview/<action>', methods=['GET'])
 def pi_cam_preview_request(action):
-  message = handle_pi_cam_preview_request(action)
-  logger.info(message)
-  return message
+  return handle_pi_cam_preview_request(action)
 
 @app.route('/is_previewing', methods=['GET'])
 def is_previewing_request():
@@ -102,11 +100,13 @@ def handle_is_previewing_request():
 def handle_pi_cam_preview_request(action):
   if action == "start":
     camera.start_preview()
-    logger.info("Started pi cam preview.")
+    msg = "Started pi cam preview."
   else:
     camera.stop_preview()
     camera.close()
-    logger.info("Stopped and closed pi cam preview.")
+    msg = "Stopped and closed pi cam preview."
+  logger.info(msg)
+  return msg
 
 def handle_take_photo_request(filename):
   filepath = "{0}{1}".format(IMAGES_DIR, filename)
