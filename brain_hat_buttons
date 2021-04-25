@@ -102,7 +102,7 @@ def right_effect():
 
 def next_effect(dir):
   if mode == 'camera':
-    response = requests.get("http://127.0.0.1:%s/photo_effect_next/%s" % pi_cam_app_settings['port'], dir)
+    response = requests.get("http://127.0.0.1:%s/photo_effect_next/%s/%s" % pi_cam_app_settings['port'], current_effect, dir)
     current_effect = response.content
 
 def joystick_up_handler(was_long_press):
@@ -115,7 +115,7 @@ def joystick_left_handler(was_long_press):
   short_or_long_press_func(was_long_press, left_effect, pi_cam_app)
 
 def joystick_right_handler(was_long_press):
-  short_or_long_press_func(was_long_press, pass_func, video_recorder)
+  short_or_long_press_func(was_long_press, right_effect, video_recorder)
 
 def joystick_select_handler(was_long_press):
   short_or_long_press_func(was_long_press, pass_func, reboot)
