@@ -102,9 +102,10 @@ def right_effect():
   next_effect('right')
 
 def next_effect(dir):
-  global current_effect
   if mode == 'camera':
-    response = requests.get("http://127.0.0.1:%s/photo_effect_next/%s/%s" % pi_cam_app_settings['port'], current_effect, dir)
+    api_call_str = "http://127.0.0.1:%s/photo_effect_next/%s/%s" % pi_cam_app_settings['port'], current_effect, dir
+    logger.info("Making a GET call to \'%s\'" % api_call_str)
+    response = requests.get(api_call_str)
     current_effect = response.content
     logger.info("Photo effect changed to " + current_effect)
 
