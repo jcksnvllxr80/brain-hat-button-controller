@@ -33,7 +33,7 @@ def init_logging():
 def setup():
   config_file = read_config_file()
   # read config dict's into more specific variables
-  pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].iteritems()}
+  pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].items()}
 
 def init_web_app():
   CORS(app)

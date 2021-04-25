@@ -48,7 +48,7 @@ def init_logging():
 def config():
   config_file = read_config_file()
   # read config dict's into more specific variables
-  pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].iteritems()}
+  pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].items()}
 
 def read_config_file():
   # read config yaml file into dictionaries
