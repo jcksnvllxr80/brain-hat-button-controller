@@ -93,7 +93,9 @@ def pi_cam_is_previewing():
   logger.info("Making a GET call to \'{0}\'".format(api_call_str))
   response = requests.get(api_call_str).content.decode("utf-8")
   logger.info("Camera is previewing: {0}".format(response))
-  return bool(response)
+  bool_response = bool(response)
+  logger.info("bool_response is a {0} type var".format(type(bool_response)))
+  return bool_response
 
 def photo():
   if mode == 'camera':
