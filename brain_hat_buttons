@@ -92,12 +92,19 @@ def stopmotion_animation():
 def photo():
   if mode == 'camera':
     logger.info("Taking photo, saving to {0}".format(IMAGES_DIR))
-    # TODO: take photo and save to ~/Desktop/images
+    filename = create_new_unique_filename()
+    api_call_str = "http://127.0.0.1:{0}/take_photo/{1}/{2}".format(pi_cam_app_settings['port'], IMAGES_DIR, filename)
+    logger.info("Making a GET call to \'{0}\'".format(api_call_str))
+    response = requests.get(api_call_str)
+    logger.info("Response from api call: {0}".format(response.content.decode("utf-8") )
   elif mode == 'stopmotion':
     logger.info("Adding stopmotion frame to {0}".format(STOPMOTION_DIR))
     # TODO: add frame to ~/stopmotion, when leaving stopmotion make video and clean up dir
   else:
     logger.warning("Mode not correct for the use of this function")
+
+def create_new_unique_filename():
+  return "{0}.jpg".format(datetime.now().strftime("%Y%m%d%H%M%S"))
 
 def obj_recognition():
   kill_pid_or_start_func(tf_obj_recognition_pid_str, start_tf_obj_recognition)

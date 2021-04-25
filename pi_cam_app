@@ -55,9 +55,16 @@ def read_config_file():
 def hello():
   return 'Hello, from pi_cam_app!'
 
+@app.route('/take_photo/<directory>/<filename>', methods=['GET'])
+def take_photo_request(directory, filename):
+  message = handle_take_photo_request(directory, filename)
+  logger.info(message)
+  return message
+
 @app.route('/photo_effect_next/<current_effect>/<direction>', methods=['GET'])
 def next_photo_effect(current_effect, direction):
   message = handle_next_effect_request(current_effect, direction)
+  logger.info(message)
   return message
 
 @app.route('/help', methods=['GET'])
@@ -70,6 +77,15 @@ def help_request():
 def page_not_found(e):
   logger.error("404: The resource could not be found.")
   return jsonify(display_message="Error.")
+
+def handle_take_photo_request(dir, filename):
+  filepath = "{0}{1}".format(dir, filename)
+  try:
+    camera.capture(filepath)
+    message = "{0} written successfully!".format(filepath)
+  except:
+    message = "{0} not successfully written!".format(filepath)
+  return message
 
 def handle_next_effect_request(current_effect, direction):
   if direction in ['left', 'right']:
