@@ -97,7 +97,7 @@ def handle_is_previewing_request():
   preview = camera.previewing
   message = "Camera in preview: {0}".format(preview)
   logger.info(message)
-  return preview
+  return str(preview)
 
 def handle_pi_cam_preview_request(action):
   if action == "start":
