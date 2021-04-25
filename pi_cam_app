@@ -94,7 +94,7 @@ def page_not_found(e):
   return jsonify(display_message="Error.")
 
 def handle_is_previewing_request():
-  preview = camera.previewing()
+  preview = camera.previewing
   message = "Camera in preview: {0}".format(preview)
   logger.info(message)
   return preview
