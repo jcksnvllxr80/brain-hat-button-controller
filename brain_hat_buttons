@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
 import time
+import yaml
 import board
+import requests
 from digitalio import DigitalInOut, Direction, Pull
 import subprocess
 import os
@@ -17,6 +19,7 @@ JOYSELECT_PIN = board.D16
 HOME_DIR = '/home/pi/brain-hat-button-controller/'
 
 mode = 'default'
+current_effect = 'none'
 buttons = [BUTTON_PIN, JOYUP_PIN, JOYDOWN_PIN,
            JOYLEFT_PIN, JOYRIGHT_PIN, JOYSELECT_PIN]
 for i,pin in enumerate(buttons):
@@ -26,6 +29,9 @@ for i,pin in enumerate(buttons):
 button, joyup, joydown, joyleft, joyright, joyselect = buttons
 pi_cam_preview_get_pid_str = "ps aux | grep -ivE \"(grep)\" | grep pi_cam_app | awk \'{print $2}\'"
 tf_obj_recognition_pid_str = "ps aux | grep -ivE \"(grep|venv)\" | grep pitft_labeled_output.py | awk \'{print $2}\'"
+HOME_DIR = "/home/pi/brain-hat-button-controller/
+CONFIG_FILE = HOME_DIR + "conf/application.yaml"
+pi_cam_app_settings = {}
 
 def init_logging():
   logging_logger = logging.getLogger(__name__)
@@ -38,6 +44,11 @@ def init_logging():
   handler.setFormatter(formatter)
   logging_logger.addHandler(handler)
   return logging_logger
+
+def config():
+  config_file = read_config_file()
+  # read config dict's into more specific variables
+  pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].iteritems()}
 
 def change_mode(new_mode='default'):
   mode = new_mode
@@ -61,11 +72,11 @@ def video_recorder():
 
 def stopmotion_animation():
   # TODO: make stop motion animation (might need a new script for this that is very similar to pi_cam_app)
-  # if already making stop motion animation, then stop, else start recording
+  # if already making stopmotion animation, then stop, else start stopmotion animation
   pass
 
 def photo():
-  # if already making stop motion animation, then stop, else start recording
+  # if already taking photo, then stop, else start taking photo
   # TODO: if in camera mode, take photo and save to ~/Desktop/images, 
   # elseif in stopmotion mode, add frame ti ~/stopmotion, when done make video and clean up files
   pass
@@ -76,6 +87,17 @@ def obj_recognition():
 def pi_cam_app():
   kill_pid_or_start_func(pi_cam_preview_get_pid_str, start_pi_cam_preview)
 
+def left_effect():
+  next_effect('left')
+
+def right_effect():
+  next_effect('right')
+
+def next_effect(dir):
+  if mode == 'camera':
+    response = requests.get("http://127.0.0.1:%s/photo_effect_next/%s" % pi_cam_app_settings['port'], dir)
+    current_effect = response.content
+
 def joystick_up_handler(was_long_press):
   short_or_long_press_func(was_long_press, pass_func, shutdown)
 
@@ -83,7 +105,7 @@ def joystick_down_handler(was_long_press):
   short_or_long_press_func(was_long_press, pass_func, stopmotion_animation)
 
 def joystick_left_handler(was_long_press):
-  short_or_long_press_func(was_long_press, pass_func, pi_cam_app)
+  short_or_long_press_func(was_long_press, left_effect, pi_cam_app)
 
 def joystick_right_handler(was_long_press):
   short_or_long_press_func(was_long_press, pass_func, video_recorder)
@@ -154,6 +176,7 @@ def pass_func():
 if __name__ == '__main__':
   global logger
   logger = init_logging()
+  config()
   while True:
     button_check()
     time.sleep(0.01)
