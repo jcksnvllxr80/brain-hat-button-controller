@@ -29,7 +29,8 @@ for i,pin in enumerate(buttons):
 button, joyup, joydown, joyleft, joyright, joyselect = buttons
 pi_cam_preview_get_pid_str = "ps aux | grep -ivE \"(grep)\" | grep pi_cam_app | awk \'{print $2}\'"
 tf_obj_recognition_pid_str = "ps aux | grep -ivE \"(grep|venv)\" | grep pitft_labeled_output.py | awk \'{print $2}\'"
-IMAGES_DIR = "/home/pi/Desktop/images/
+IMAGES_DIR = "/home/pi/Desktop/Pictures/"
+VIDEO_DIR = "/home/pi/Desktop/Videos/"
 STOPMOTION_DIR = "/home/pi/stopmotion/"
 HOME_DIR = "/home/pi/brain-hat-button-controller/"
 CONFIG_FILE = HOME_DIR + "conf/application.yaml"
