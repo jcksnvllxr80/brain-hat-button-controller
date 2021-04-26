@@ -12,12 +12,14 @@ from flask import request, jsonify, Flask # package for the webapp
 
 camera = PiCamera()
 app = Flask(__name__)
-menu_items = ['photo_effect' , 'resolution', 'awb_mode']
+menu_items = ['photo_effect' , 'resolution', 'awb_mode', 'exposure_mode']
 photo_effects = [ 'none', 'negative', 'solarize', 'sketch', 'denoise', 'emboss', 'oilpaint', 'hatch', 'gpen', 'pastel', 
   'watercolor', 'film', 'blur', 'saturation', 'colorswap', 'washedout', 'posterise', 'colorpoint', 
   'colorbalance', 'cartoon', 'deinterlace1', 'deinterlace2' ]
 resolutions = [(2028, 1080), (2028, 1520), (4056, 3040), (1332, 990)]
 awb_modes = ['off', 'auto', 'sunlight', 'cloudy', 'shade', 'tungsten', 'fluorescent', 'incandescent', 'flash', 'horizon']
+exposure_modes = ['off', 'auto', 'night', 'nightpreview', 'backlight', 'spotlight', 'sports', 'snow', 'beach', 
+  'verylong', 'fixedfps', 'antishake', 'fireworks']
 HOME_DIR = "/home/pi/"
 IMAGES_DIR = HOME_DIR + "Pictures/"
 VIDEO_DIR = HOME_DIR + "Videos/"
@@ -47,17 +49,20 @@ def setup():
   current_values = {
     'photo_effect': 'none',
     'resolution': (4056, 3040),
-    'awb_mode': 'auto'
+    'awb_mode': 'auto',
+    'exposure_mode': 'auto'
   }
   current_menu_items = {
     'photo_effect': photo_effects,
     'resolution': resolutions,
-    'awb_mode': awb_modes
+    'awb_mode': awb_modes,
+    'exposure_mode': exposure_modes
   }
   current_menu_functions = {
     'photo_effect': set_photo_effect,
     'resolution': set_menu_resolution,
-    'awb_mode': set_awb_mode
+    'awb_mode': set_awb_mode,
+    'exposure_mode': set_exposure_mode
   }
   config_file = read_config_file()
   # read config dict's into more specific variables
@@ -227,6 +232,10 @@ def set_menu_resolution(resolution):
 def set_awb_mode(auto_white_balance_mode):
   camera.awb_mode = auto_white_balance_mode
   Thread(target=set_image_text, args=('set_image_text', 3, 'AWB Mode', auto_white_balance_mode)).start()
+
+def set_exposure_mode(exposure_mode):
+  camera.exposure_mode = exposure_mode
+  Thread(target=set_image_text, args=('set_image_text', 3, 'Exposure', exposure_mode)).start()
 
 def set_image_text(thread_name, wait_seconds, display_str, value_name):
   logger.info("Thread \'{0}\': starting".format(thread_name))
