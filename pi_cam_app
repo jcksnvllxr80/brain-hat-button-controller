@@ -104,7 +104,7 @@ def handle_pi_cam_preview_request(action):
       camera = PiCamera()
     set_resolution(4056, 3040, 10)
     camera.start_preview()
-    camera.preview_fullscreen()
+    camera.preview_fullscreen = True
     msg = "Started pi cam preview."
   else:
     camera.stop_preview()
