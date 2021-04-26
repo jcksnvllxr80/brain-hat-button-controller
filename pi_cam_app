@@ -159,7 +159,7 @@ def handle_next_value_request(direction):
 
 def go_to_next_menu_item(dir):
   global current_menu_item
-  current_menu_item_ind = menu_items.index(menu_items[current_menu_item])
+  current_menu_item_ind = menu_items.index(current_menu_item)
   if dir == 'down':
     if current_menu_item_ind == 0:
       next_menu_item = menu_items[len(menu_items) - 1]
