@@ -102,7 +102,7 @@ def handle_pi_cam_preview_request(action):
   if action == "start":
     if camera.closed:
       camera = PiCamera()
-    set_resolution(4056, 3040, 10)
+    set_resolution(4056, 3040)
     camera.start_preview()
     camera.preview_fullscreen = True
     msg = "Started pi cam preview."
@@ -116,7 +116,7 @@ def handle_pi_cam_preview_request(action):
 def handle_take_photo_request(filename):
   filepath = "{0}{1}".format(IMAGES_DIR, filename)
   try:
-    change_res_and_shoot(filepath)
+    shoot(filepath)
     message = "{0} written successfully!".format(filepath)
   except:
     exc_type, exc_value, exc_tb = sys.exc_info()
@@ -124,15 +124,13 @@ def handle_take_photo_request(filename):
     message = "{0} not successfully written!".format(filepath)
   return message
 
-def change_res_and_shoot(filepath):
-  # original_fps = camera.framerate
-  # set_resolution(4056, 3040, 10)
+def shoot(filepath):
   camera.capture(filepath, format='png')
-  # set_resolution(480, 480, original_fps)
 
-def set_resolution(x, y, fps):
+def set_resolution(x, y, fps=None):
   camera.resolution = (x, y)
-  camera.framerate = fps
+  if fps:
+    camera.framerate = fps
 
 def handle_next_effect_request(current_effect, direction):
   if direction in ['left', 'right']:
