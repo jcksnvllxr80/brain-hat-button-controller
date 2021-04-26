@@ -235,7 +235,7 @@ if __name__ == '__main__':
   }
   current_menu_functions = {
     'photo_effect': set_photo_effect,
-    'resolution': set_resolution
+    'resolution': set_menu_resolution
   }
   setup()
   init_web_app()
