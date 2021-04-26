@@ -171,6 +171,8 @@ def go_to_next_menu_item(dir):
     else:
       next_menu_item = menu_items[current_menu_item_ind + 1]
   current_menu_item = next_menu_item
+  display_str = "{0}->{1}".format(current_menu_item, current_values[current_menu_item])
+  Thread(target=set_image_text, args=('set_image_text', 3, 'Menu', display_str)).start()
   msg = "Changed menu item {0} one to \'{1}\'".format(dir, next_menu_item)
   logger.info(msg)
   return msg
@@ -197,13 +199,11 @@ def go_to_next_value(dir):
 
 def set_photo_effect(effect):
   camera.image_effect = effect
-  x = Thread(target=set_image_text, args=('set_image_text', 3, 'Effect', effect))
-  x.start()
+  Thread(target=set_image_text, args=('set_image_text', 3, 'Effect', effect)).start()
 
 def set_menu_resolution(resolution):
   set_resolution(*resolution)  # resolution is a tuple so gather and spit out its values
-  x = Thread(target=set_image_text, args=('set_image_text', 3, 'Resolution', resolution))
-  x.start()
+  Thread(target=set_image_text, args=('set_image_text', 3, 'Resolution', resolution)).start()
 
 def set_image_text(thread_name, wait_seconds, display_str, value_name):
   logger.info("Thread \'{0}\': starting".format(thread_name))
