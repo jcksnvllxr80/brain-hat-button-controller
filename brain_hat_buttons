@@ -102,7 +102,7 @@ def photo():
     logger.warning("Mode not correct for the use of this function")
 
 def create_new_unique_filename():
-  return "{0}.png".format(datetime.now().strftime("%Y%m%d_%H%M%S"))
+  return "{0}".format(datetime.now().strftime("%Y%m%d_%H%M%S"))
 
 def obj_recognition():
   kill_pid_or_start_func(tf_obj_recognition_pid_str, start_tf_obj_recognition)

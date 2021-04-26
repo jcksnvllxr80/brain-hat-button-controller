@@ -12,7 +12,7 @@ from flask import request, jsonify, Flask # package for the webapp
 
 camera = PiCamera()
 app = Flask(__name__)
-menu_items = ['photo_effect' , 'resolution', 'awb_mode', 'exposure_mode']
+menu_items = ['photo_effect' , 'resolution', 'awb_mode', 'exposure_mode', 'capture_format']
 photo_effects = [ 'none', 'negative', 'solarize', 'sketch', 'denoise', 'emboss', 'oilpaint', 'hatch', 'gpen', 'pastel', 
   'watercolor', 'film', 'blur', 'saturation', 'colorswap', 'washedout', 'posterise', 'colorpoint', 
   'colorbalance', 'cartoon', 'deinterlace1', 'deinterlace2' ]
@@ -20,6 +20,7 @@ resolutions = [(2028, 1080), (2028, 1520), (4056, 3040), (1332, 990)]
 awb_modes = ['off', 'auto', 'sunlight', 'cloudy', 'shade', 'tungsten', 'fluorescent', 'incandescent', 'flash', 'horizon']
 exposure_modes = ['off', 'auto', 'night', 'nightpreview', 'backlight', 'spotlight', 'sports', 'snow', 'beach', 
   'verylong', 'fixedfps', 'antishake', 'fireworks']
+capture_formats = ['jpeg', 'png', 'gif', 'bmp', 'yuv', 'rgb', 'rgba', 'bgr', 'bgra', 'raw']
 HOME_DIR = "/home/pi/"
 IMAGES_DIR = HOME_DIR + "Pictures/"
 VIDEO_DIR = HOME_DIR + "Videos/"
@@ -50,19 +51,22 @@ def setup():
     'photo_effect': 'none',
     'resolution': (4056, 3040),
     'awb_mode': 'auto',
-    'exposure_mode': 'auto'
+    'exposure_mode': 'auto',
+    'capture_format': 'png'
   }
   current_menu_items = {
     'photo_effect': photo_effects,
     'resolution': resolutions,
     'awb_mode': awb_modes,
-    'exposure_mode': exposure_modes
+    'exposure_mode': exposure_modes,
+    'capture_format': capture_formats
   }
   current_menu_functions = {
     'photo_effect': set_photo_effect,
     'resolution': set_menu_resolution,
     'awb_mode': set_awb_mode,
-    'exposure_mode': set_exposure_mode
+    'exposure_mode': set_exposure_mode,
+    'capture_format': set_capture_format
   }
   config_file = read_config_file()
   # read config dict's into more specific variables
@@ -158,7 +162,7 @@ def handle_take_photo_request(filename):
   return message
 
 def shoot(filepath):
-  camera.capture(filepath, format='png')
+  camera.capture(filepath, format=capture_format)
 
 def set_resolution(x, y, fps=None):
   camera.resolution = (x, y)
@@ -195,7 +199,7 @@ def go_to_next_menu_item(dir):
     else:
       next_menu_item = menu_items[current_menu_item_ind + 1]
   current_menu_item = next_menu_item
-  display_str = "{0}->{1}".format(current_menu_item, current_values[current_menu_item])
+  display_str = "{0} -> {1}".format(current_menu_item, current_values[current_menu_item])
   Thread(target=set_image_text, args=('set_image_text', 3, 'Menu', display_str)).start()
   msg = "Changed menu item {0} one to \'{1}\'".format(dir, next_menu_item)
   logger.info(msg)
@@ -236,6 +240,11 @@ def set_awb_mode(auto_white_balance_mode):
 def set_exposure_mode(exposure_mode):
   camera.exposure_mode = exposure_mode
   Thread(target=set_image_text, args=('set_image_text', 3, 'Exposure', exposure_mode)).start()
+
+def set_capture_format(format):
+  global capture_format
+  capture_format = format
+  Thread(target=set_image_text, args=('set_image_text', 3, 'Capture Format', capture_format)).start()
 
 def set_image_text(thread_name, wait_seconds, display_str, value_name):
   logger.info("Thread \'{0}\': starting".format(thread_name))
