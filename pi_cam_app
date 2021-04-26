@@ -78,7 +78,7 @@ def take_photo_request(filename):
   return message
 
 @app.route('/next_menu_item/<direction>', methods=['GET'])
-def next_value(direction):
+def next_menu_item(direction):
   message = handle_next_menu_item_request(direction)
   logger.info(message)
   return message
