@@ -47,13 +47,6 @@ def setup():
   global current_menu_items
   global current_menu_functions
   global pi_cam_app_settings
-  current_values = {
-    'photo_effect': 'none',
-    'resolution': (4056, 3040),
-    'awb_mode': 'auto',
-    'exposure_mode': 'auto',
-    'capture_format': 'png'
-  }
   current_menu_items = {
     'photo_effect': photo_effects,
     'resolution': resolutions,
@@ -71,6 +64,14 @@ def setup():
   config_file = read_config_file()
   # read config dict's into more specific variables
   pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].items()}
+  # TODO: get these from the config file. also write a method to store changes in config
+  current_values = {
+    'photo_effect': 'none',
+    'resolution': (4056, 3040),
+    'awb_mode': 'auto',
+    'exposure_mode': 'auto',
+    'capture_format': 'png'
+  }
 
 def init_web_app():
   web_app_ip = pi_cam_app_settings['ip']
@@ -139,7 +140,7 @@ def handle_pi_cam_preview_request(action):
   if action == "start":
     if camera.closed:
       camera = PiCamera()
-    camera.annotate_background = True
+    camera.annotate_background = picamera.color.Color('green')
     set_resolution(4056, 3040)
     camera.start_preview()
     camera.preview_fullscreen = True
