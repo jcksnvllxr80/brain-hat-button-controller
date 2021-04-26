@@ -186,16 +186,19 @@ def exception_handler(exc_type, exc_value, exc_tb):
 
 if __name__ == '__main__':
   global logger
+  global current_values
+  global current_menu_items
+  global current_menu_functions
   logger = init_logging()
-  global current_values = {
+  current_values = {
     'photo_effect': 'none',
     'resolution': (4056, 3040)
   }
-  global current_menu_items = {
+  current_menu_items = {
     'photo_effect': photo_effects,
     'resolution': resolutions
   }
-  global current_menu_functions = {
+  current_menu_functions = {
     'photo_effect': set_photo_effect,
     'resolution': set_resolution
   }
