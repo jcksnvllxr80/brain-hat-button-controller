@@ -202,7 +202,7 @@ def set_photo_effect(effect):
 
 def set_menu_resolution(resolution):
   set_resolution(*resolution)  # resolution is a tuple so gather and spit out its values
-  x = Thread(target=set_image_text, args=('set_image_text', 3, 'Effect', effect))
+  x = Thread(target=set_image_text, args=('set_image_text', 3, 'Resolution', resolution))
   x.start()
 
 def set_image_text(thread_name, wait_seconds, display_str, value_name):
