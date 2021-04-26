@@ -82,10 +82,7 @@ def stopmotion_animation():
   pass
 
 def pi_cam_preview(action):
-  api_call_str = "http://127.0.0.1:{0}/pi_cam_preview/{1}".format(pi_cam_app_settings['port'], action)
-  logger.info("Making a GET call to \'{0}\'".format(api_call_str))
-  response = requests.get(api_call_str)
-  logger.info("Response from api call: {0}".format(response.content.decode("utf-8")))
+  make_get_api_call("http://127.0.0.1:{0}/pi_cam_preview/{1}".format(pi_cam_app_settings['port'], action))
 
 def pi_cam_is_previewing():
   api_call_str = "http://127.0.0.1:{0}/is_previewing".format(pi_cam_app_settings['port'])
@@ -97,10 +94,7 @@ def pi_cam_is_previewing():
 def photo():
   if mode == 'camera':
     logger.info("Taking photo")
-    api_call_str = "http://127.0.0.1:{0}/take_photo/{1}".format(pi_cam_app_settings['port'], create_new_unique_filename())
-    logger.info("Making a GET call to \'{0}\'".format(api_call_str))
-    response = requests.get(api_call_str)
-    logger.info("Response from api call: {0}".format(response.content.decode("utf-8")))
+    make_get_api_call("http://127.0.0.1:{0}/take_photo/{1}".format(pi_cam_app_settings['port'], create_new_unique_filename()))
   elif mode == 'stopmotion':
     logger.info("Adding stopmotion frame")
     # TODO: add frame to ~/stopmotion, when leaving stopmotion make video and clean up dir
@@ -116,6 +110,18 @@ def obj_recognition():
 def pi_cam_app():
   start_or_stop_pi_cam_preview()
 
+def up_menu_item():
+  next_menu_item('up')
+
+def down_menu_item():
+  next_menu_item('down')
+
+def next_menu_item(dir):
+  if mode == 'camera':
+    make_get_api_call("http://127.0.0.1:{0}/next_menu_item/{1}".format(pi_cam_app_settings['port'], dir))
+  else:
+    logger.warning("Mode not correct for the use of this function")
+
 def left_value():
   next_value('left')
 
@@ -124,18 +130,20 @@ def right_value():
 
 def next_value(dir):
   if mode == 'camera':
-    api_call_str = "http://127.0.0.1:{0}/next_value/{1}".format(pi_cam_app_settings['port'], dir)
-    logger.info("Making a GET call to \'{0}\'".format(api_call_str))
-    response = requests.get(api_call_str)
-    logger.info("{0}".format(response.content.decode("utf-8")))
+    make_get_api_call("http://127.0.0.1:{0}/next_value/{1}".format(pi_cam_app_settings['port'], dir))
   else:
     logger.warning("Mode not correct for the use of this function")
 
+def make_get_api_call(api_call_str):
+  logger.info("Making a GET call to \'{0}\'".format(api_call_str))
+  response = requests.get(api_call_str)
+  logger.info("Response from api call: {0}".format(response.content.decode("utf-8")))
+
 def joystick_up_handler(was_long_press):
-  short_or_long_press_func(was_long_press, pass_func, shutdown)
+  short_or_long_press_func(was_long_press, up_menu_item, shutdown)
 
 def joystick_down_handler(was_long_press):
-  short_or_long_press_func(was_long_press, pass_func, stopmotion_animation)
+  short_or_long_press_func(was_long_press, down_menu_item, stopmotion_animation)
 
 def joystick_left_handler(was_long_press):
   short_or_long_press_func(was_long_press, left_value, pi_cam_app)
