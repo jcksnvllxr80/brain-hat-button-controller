@@ -261,8 +261,9 @@ def set_photo_effect(effect):
   camera.image_effect = effect
   return 'Effect'
 
-def set_menu_resolution(resolution):
-  set_resolution(*resolution)  # resolution is a tuple so gather and spit out its values
+def set_menu_resolution(resolution_x):
+  resolution_dict = {990: (1332, 990), 1080: (2028, 1080), 1520: (2028, 1520), 3040: (4056, 3040)}
+  set_resolution(*resolution_dict[resolution_x])  # resolution is a tuple so gather and spit out its values
   return 'Resolution'
 
 def set_awb_mode(auto_white_balance_mode):
