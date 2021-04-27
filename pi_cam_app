@@ -109,14 +109,14 @@ def read_config_file():
     config_file = yaml.full_load(ymlfile)
   return config_file
 
-def write_config_file():
+def write_config_file(data):
   with open(CONFIG_FILE, 'w') as ymlfile:
     yaml.dump(data, ymlfile)
 
 def write_value_to_config_file(new_val):
   config_file = read_config_file()
   config_file['camera'][current_menu_item] = new_val
-  write_config_file()
+  write_config_file(config_file)
 
 @app.route('/')
 def hello():
