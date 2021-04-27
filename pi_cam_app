@@ -94,8 +94,8 @@ def setup():
     'capture_format': camera_settings['capture_format'],
     'annotate_background': camera_settings['annotate_background']
   }
-  # logger.info(map(lambda x: "{0} was set to {1}\n".format(x, current_menu_values[x]), menu_items))
-  logger.info("{0}".format(current_menu_values))
+  logger.info(map(lambda x: "{0} was set to {1}\n".format(x, current_menu_values[x]), menu_items))
+  # logger.info("{0}".format(current_menu_values))
 
 def init_web_app():
   web_app_ip = pi_cam_app_settings['ip']
@@ -107,19 +107,19 @@ def init_web_app():
 
 def read_config_file():
   # read config yaml file into dictionaries
-  config_file = None
+  config = None
   with open(CONFIG_FILE, 'r') as ymlfile:
-    config_file = yaml.full_load(ymlfile)
-  return config_file
+    config = yaml.full_load(ymlfile)
+  return config
 
 def write_config_file(data):
   with open(CONFIG_FILE, 'w') as ymlfile:
     yaml.dump(data, ymlfile)
 
 def write_value_to_config_file(new_val):
-  config_file = read_config_file()
-  config_file['camera'][current_menu_item] = new_val
-  write_config_file(config_file)
+  config = read_config_file()
+  config['camera'][current_menu_item] = new_val
+  write_config_file(config)
 
 @app.route('/')
 def hello():
