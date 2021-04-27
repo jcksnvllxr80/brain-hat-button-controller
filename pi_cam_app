@@ -260,27 +260,33 @@ def go_to_next_value(dir):
 
 def set_photo_effect(effect):
   camera.image_effect = effect
+  logger.info("Set photo effect to \'{0}\'".format(effect))
   return 'Effect'
 
 def set_menu_resolution(resolution):
   set_resolution(*resolution)  # resolution is a tuple so gather and spit out its values
+  logger.info("Set resolution to \'{0}\'".format(resolution))
   return 'Resolution'
 
 def set_awb_mode(auto_white_balance_mode):
   camera.awb_mode = auto_white_balance_mode
+  logger.info("Set AWB mode to \'{0}\'".format(auto_white_balance_mode))
   return 'AWB Mode'
 
 def set_exposure_mode(exposure_mode):
   camera.exposure_mode = exposure_mode
+  logger.info("Set exposure mode to \'{0}\'".format(exposure_mode))
   return 'Exposure'
 
 def set_capture_format(format):
   global capture_format
   capture_format = format
+  logger.info("Set capture format to \'{0}\'".format(format))
   return 'Capture Format'
 
 def set_annotate_background(color):
   camera.annotate_background = Color(color)
+  logger.info("Set annotation background color to \'{0}\'".format(color))
   return 'Annotate Background'
 
 def set_image_text(thread_name, wait_seconds, display_str, value_name):
