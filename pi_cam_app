@@ -4,6 +4,7 @@ import time
 import sys
 import yaml
 import logging
+from ast import literal_eval
 from traceback import format_exception
 from threading import Thread
 from picamera import PiCamera
@@ -38,7 +39,6 @@ annotate_background_colors = ['aliceblue', 'antiquewhite', 'aqua', 'antiquewhite
   'pink', 'plum', 'powderblue', 'purple', 'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen',
   'seashell', 'sienna', 'silver', 'skyblue', 'slateblue', 'slategray', 'slategrey', 'snow', 'springgreen', 'steelblue', 'tan',
   'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen']
-resolution_dict = {990: (1332, 990), 1080: (2028, 1080), 1520: (2028, 1520), 3040: (4056, 3040)}
 
 HOME_DIR = "/home/pi/"
 IMAGES_DIR = HOME_DIR + "Pictures/"
@@ -263,8 +263,8 @@ def set_photo_effect(effect):
   camera.image_effect = effect
   return 'Effect'
 
-def set_menu_resolution(resolution_x):
-  set_resolution(*resolution_dict[resolution_x])  # resolution is a tuple so gather and spit out its values
+def set_menu_resolution(resolution):
+  set_resolution(*resolution)  # resolution is a tuple so gather and spit out its values
   return 'Resolution'
 
 def set_awb_mode(auto_white_balance_mode):
@@ -286,7 +286,7 @@ def set_annotate_background(color):
 
 def set_image_text(thread_name, wait_seconds, display_str, value_name):
   logger.info("Thread \'{0}\': starting".format(thread_name))
-  desired_res = int(0.07 * min(resolution_dict[current_menu_values['resolution']]))
+  desired_res = int(0.07 * min(literal_eval(current_menu_values['resolution'])))
   camera.annotate_text_size = desired_res if desired_res < 160 else 160
   camera.annotate_text = "{0}: {1}".format(display_str, value_name)
   time.sleep(wait_seconds)

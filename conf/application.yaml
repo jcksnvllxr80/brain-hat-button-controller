@@ -3,7 +3,7 @@ pi_cam_app:
   port: 8099
 camera:
   photo_effect: 'none'
-  resolution: (4056, 3040)
+  resolution: '(1332, 990)'
   awb_mode: 'auto'
   exposure_mode: 'auto'
   capture_format: 'png'
