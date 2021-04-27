@@ -63,6 +63,13 @@ def change_mode(new_mode='default'):
   logger.info("Mode changed to " + mode)
 
 def start_tf_obj_recognition():
+  # NOTE: in order to get the speaker to work on the brainCraft hat, the following line
+  # pipes the detected text into sudo festival in line 150 of the link below.
+  # the reason the speaker stuff doesnt just work is that i am nott running the code as root.
+  # https://github.com/adafruit/rpi-vision/blob/master/tests/pitft_labeled_output.py
+  #######################################################################
+  # os.system('echo %s | sudo festival --tts & ' % detecttext)  # this is the changed line
+  #######################################################################
   if pi_cam_is_previewing():
     pi_cam_preview('stop')
     change_mode()
