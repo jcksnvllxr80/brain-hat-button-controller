@@ -264,7 +264,7 @@ def set_photo_effect(effect):
   return 'Effect'
 
 def set_menu_resolution(resolution):
-  set_resolution(*resolution)  # resolution is a tuple so gather and spit out its values
+  set_resolution(*literal_eval(resolution))  # resolution is a tuple so gather and spit out its values
   return 'Resolution'
 
 def set_awb_mode(auto_white_balance_mode):
@@ -286,7 +286,7 @@ def set_annotate_background(color):
 
 def set_image_text(thread_name, wait_seconds, display_str, value_name):
   logger.info("Thread \'{0}\': starting".format(thread_name))
-  desired_res = int(0.07 * min(literal_eval(current_menu_values['resolution'])))
+  desired_res = int(0.07 * min(current_menu_values['resolution']))
   camera.annotate_text_size = desired_res if desired_res < 160 else 160
   camera.annotate_text = "{0}: {1}".format(display_str, value_name)
   time.sleep(wait_seconds)
