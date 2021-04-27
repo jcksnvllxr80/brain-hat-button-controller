@@ -2,9 +2,9 @@ pi_cam_app:
   ip: '0.0.0.0'
   port: 8099
 camera:
-  photo_effect: none
+  photo_effect: 'none'
   resolution: (4056, 3040)
-  awb_mode: auto
-  exposure_mode: auto
-  capture_format: png
-  annotate_background: green
+  awb_mode: 'auto'
+  exposure_mode: 'auto'
+  capture_format: 'png'
+  annotate_background: 'green'
