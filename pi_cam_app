@@ -172,7 +172,7 @@ def handle_pi_cam_preview_request(action):
   if action == "start":
     if camera.closed:
       camera = PiCamera()
-    map(lambda x: menu_functions[x](current_menu_values[x]), menu_items)
+    map(load_camera_settings_with_config, menu_items)
     camera.start_preview()
     camera.preview_fullscreen = True
     msg = "Started pi cam preview."
@@ -182,6 +182,9 @@ def handle_pi_cam_preview_request(action):
     msg = "Stopped and closed pi cam preview."
   logger.info(msg)
   return msg
+
+def load_camera_settings_with_config(menu_item):
+  menu_functions[menu_item](current_menu_values[menu_item])
 
 def handle_take_photo_request(filename):
   filepath = "{0}{1}.{2}".format(IMAGES_DIR, filename, capture_format)
