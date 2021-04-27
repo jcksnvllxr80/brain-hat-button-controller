@@ -117,6 +117,8 @@ def write_config_file(data):
 
 def write_value_to_config_file(new_val):
   config = read_config_file()
+  if current_menu_item is 'resolution':
+    new_val = str(new_val)
   config['camera'][current_menu_item] = new_val
   write_config_file(config)
 
