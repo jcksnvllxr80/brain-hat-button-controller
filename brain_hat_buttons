@@ -203,6 +203,9 @@ def start_or_stop_pi_cam_preview():
     pi_cam_preview('stop')
     change_mode()
   else:
+    pid = get_pid(tf_obj_recognition_pid_str)
+    if pid:
+      kill_pid(pid)
     change_mode('camera')
     pi_cam_preview('start')
 
