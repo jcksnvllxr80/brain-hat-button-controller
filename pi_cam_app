@@ -22,6 +22,23 @@ awb_modes = ['off', 'auto', 'sunlight', 'cloudy', 'shade', 'tungsten', 'fluoresc
 exposure_modes = ['off', 'auto', 'night', 'nightpreview', 'backlight', 'spotlight', 'sports', 'snow', 'beach', 
   'verylong', 'fixedfps', 'antishake', 'fireworks']
 capture_formats = ['jpeg', 'png', 'gif', 'bmp', 'yuv', 'rgb', 'rgba', 'bgr', 'bgra', 'raw']
+annotate_background_colors = ['aliceblue', 'antiquewhite', 'aqua', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige',
+  'bisque', 'black', 'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate',
+  'coral', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgreen',
+  'darkgrey', 'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred', 'darksalmon', 'darkseagreen',
+  'darkslateblue', 'darkslategray', 'darkslategrey', 'darkturquoise', 'darkviolet', 'deeppink', 'deepskyblue', 'dimgray',
+  'dimgrey', 'dodgerblue', 'firebrick', 'floralwhite', 'forestgreen', 'fuchsia', 'gainsboro', 'ghostwhite', 'gold', 'goldenrod',
+  'gray', 'green', 'greenyellow', 'grey', 'honeydew', 'hotpink', 'indianred', 'indigo', 'ivory', 'khaki', 'lavender',
+  'lavenderblush', 'lawngreen', 'lemonchiffon', 'lightblue', 'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgray',
+  'lightgreen', 'lightgrey', 'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey',
+  'lightsteelblue', 'lightyellow', 'lime', 'limegreen', 'linen', 'magenta', 'maroon', 'mediumaquamarine', 'mediumblue',
+  'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumspringgreen', 'mediumturquoise', 'mediumvioletred',
+  'midnightblue', 'mintcream', 'mistyrose', 'moccasin', 'navajowhite', 'navy', 'oldlace', 'olive', 'olivedrab', 'orange',
+  'orangered', 'orchid', 'palegoldenrod', 'palegreen', 'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru',
+  'pink', 'plum', 'powderblue', 'purple', 'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen',
+  'seashell', 'sienna', 'silver', 'skyblue', 'slateblue', 'slategray', 'slategrey', 'snow', 'springgreen', 'steelblue', 'tan',
+  'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen']
+
 HOME_DIR = "/home/pi/"
 IMAGES_DIR = HOME_DIR + "Pictures/"
 VIDEO_DIR = HOME_DIR + "Videos/"
@@ -29,7 +46,7 @@ STOPMOTION_DIR = HOME_DIR + "stopmotion/"
 APP_DIR = HOME_DIR + "brain-hat-button-controller/"
 CONFIG_FILE = APP_DIR + "conf/application.yaml"
 pi_cam_app_settings = {}
-current_menu_item = 'photo_effect'
+current_menu_item = menu_items[0]
 
 def init_logging():
   logging_logger = logging.getLogger(__name__)
@@ -44,34 +61,37 @@ def init_logging():
   return logging_logger
 
 def setup():
-  global current_values
-  global current_menu_items
-  global current_menu_functions
+  global current_menu_values
+  global menu_items_dict
+  global menu_functions
   global pi_cam_app_settings
-  current_menu_items = {
+  menu_items_dict = {
     'photo_effect': photo_effects,
     'resolution': resolutions,
     'awb_mode': awb_modes,
     'exposure_mode': exposure_modes,
-    'capture_format': capture_formats
+    'capture_format': capture_formats,
+    'annotate_background': annotate_background_colors
   }
-  current_menu_functions = {
+  menu_functions = {
     'photo_effect': set_photo_effect,
     'resolution': set_menu_resolution,
     'awb_mode': set_awb_mode,
     'exposure_mode': set_exposure_mode,
-    'capture_format': set_capture_format
+    'capture_format': set_capture_format,
+    'annotate_background': set_annotate_background
   }
   config_file = read_config_file()
   # read config dict's into more specific variables
   pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].items()}
-  # TODO: get these from the config file. also write a method to store changes in config
-  current_values = {
-    'photo_effect': 'none',
-    'resolution': (4056, 3040),
-    'awb_mode': 'auto',
-    'exposure_mode': 'auto',
-    'capture_format': 'png'
+  camera_settings = {k: v for k, v in config_file['camera'].items()}
+  current_menu_values = {
+    'photo_effect': camera_settings['photo_effect'],
+    'resolution': camera_settings['resolution'],
+    'awb_mode': camera_settings['awb_mode'],
+    'exposure_mode': camera_settings['exposure_mode'],
+    'capture_format': camera_settings['capture_format'],
+    'annotate_background': camera_settings['annotate_background']
   }
 
 def init_web_app():
@@ -88,6 +108,15 @@ def read_config_file():
   with open(CONFIG_FILE, 'r') as ymlfile:
     config_file = yaml.full_load(ymlfile)
   return config_file
+
+def write_config_file():
+  with open(CONFIG_FILE, 'w') as ymlfile:
+    yaml.dump(data, ymlfile)
+
+def write_value_to_config_file(new_val):
+  config_file = read_config_file()
+  config_file['camera'][current_menu_item] = new_val
+  write_config_file()
 
 @app.route('/')
 def hello():
@@ -141,8 +170,7 @@ def handle_pi_cam_preview_request(action):
   if action == "start":
     if camera.closed:
       camera = PiCamera()
-    camera.annotate_background = Color('green')
-    set_resolution(4056, 3040)
+    map(lambda x: menu_functions[x](current_menu_values[x]), menu_items)
     camera.start_preview()
     camera.preview_fullscreen = True
     msg = "Started pi cam preview."
@@ -202,16 +230,16 @@ def go_to_next_menu_item(dir):
     else:
       next_menu_item = menu_items[current_menu_item_ind + 1]
   current_menu_item = next_menu_item
-  display_str = "{0} -> {1}".format(current_menu_item, current_values[current_menu_item])
+  display_str = "{0} -> {1}".format(current_menu_item, current_menu_values[current_menu_item])
   Thread(target=set_image_text, args=('set_image_text', 3, 'Menu', display_str)).start()
   msg = "Changed menu item {0} one to \'{1}\'".format(dir, next_menu_item)
   logger.info(msg)
   return msg
 
 def go_to_next_value(dir):
-  global current_values
-  current_menu_item_list = current_menu_items[current_menu_item]
-  current_value_ind = current_menu_item_list.index(current_values[current_menu_item])
+  global current_menu_values
+  current_menu_item_list = menu_items_dict[current_menu_item]
+  current_value_ind = current_menu_item_list.index(current_menu_values[current_menu_item])
   if dir == 'left':
     if current_value_ind == 0:
       next_value = current_menu_item_list[len(current_menu_item_list) - 1]
@@ -222,36 +250,42 @@ def go_to_next_value(dir):
       next_value = current_menu_item_list[0]
     else:
       next_value = current_menu_item_list[current_value_ind + 1]
-  current_values[current_menu_item] = next_value
-  current_menu_functions[current_menu_item](next_value)
+  current_menu_values[current_menu_item] = next_value
+  display_text = menu_functions[current_menu_item](next_value)
+  Thread(target=set_image_text, args=('set_image_text', 3, display_text, next_value)).start()
+  write_value_to_config_file(current_menu_values[current_menu_item])
   msg = "Changed value one to the {0}, \'{1}\'".format(dir, next_value)
   logger.info(msg)
   return msg
 
 def set_photo_effect(effect):
   camera.image_effect = effect
-  Thread(target=set_image_text, args=('set_image_text', 3, 'Effect', effect)).start()
+  return 'Effect'
 
 def set_menu_resolution(resolution):
   set_resolution(*resolution)  # resolution is a tuple so gather and spit out its values
-  Thread(target=set_image_text, args=('set_image_text', 3, 'Resolution', resolution)).start()
+  return 'Resolution'
 
 def set_awb_mode(auto_white_balance_mode):
   camera.awb_mode = auto_white_balance_mode
-  Thread(target=set_image_text, args=('set_image_text', 3, 'AWB Mode', auto_white_balance_mode)).start()
+  return 'AWB Mode'
 
 def set_exposure_mode(exposure_mode):
   camera.exposure_mode = exposure_mode
-  Thread(target=set_image_text, args=('set_image_text', 3, 'Exposure', exposure_mode)).start()
+  return 'Exposure'
 
 def set_capture_format(format):
   global capture_format
   capture_format = format
-  Thread(target=set_image_text, args=('set_image_text', 3, 'Capture Format', capture_format)).start()
+  return 'Capture Format'
+
+def set_annotate_background(color):
+  camera.annotate_background = Color(color)
+  return 'Annotate Background'
 
 def set_image_text(thread_name, wait_seconds, display_str, value_name):
   logger.info("Thread \'{0}\': starting".format(thread_name))
-  desired_res = int(0.07 * min(current_values['resolution']))
+  desired_res = int(0.07 * min(current_menu_values['resolution']))
   camera.annotate_text_size = desired_res if desired_res < 160 else 160
   camera.annotate_text = "{0}: {1}".format(display_str, value_name)
   time.sleep(wait_seconds)
