@@ -66,7 +66,7 @@ def start_tf_obj_recognition():
   if pi_cam_is_previewing():
     pi_cam_preview('stop')
     change_mode()
-  os.environ["DISPLAY"] = ":0"
+  os.environ["DISPLAY"] = "1:0"
   subprocess.Popen(HOME_DIR + "tf_obj_recognition")
 
 def video_recorder():

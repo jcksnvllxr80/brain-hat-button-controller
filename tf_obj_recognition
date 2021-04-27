@@ -1,5 +1,4 @@
 #!/bin/bash
 
-sudo bash
 cd /home/pi/rpi-vision && . .venv/bin/activate
-sudo python3 /home/pi/rpi-vision/tests/pitft_labeled_output.py --tflite
+python3 /home/pi/rpi-vision/tests/pitft_labeled_output.py --tflite
