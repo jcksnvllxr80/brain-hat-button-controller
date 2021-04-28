@@ -1,10 +1,10 @@
-pi_cam_app:
-  ip: '0.0.0.0'
-  port: 8099
 camera:
-  photo_effect: 'none'
-  resolution: '(1332, 990)'
-  awb_mode: 'auto'
-  exposure_mode: 'auto'
-  capture_format: 'png'
-  annotate_background: 'green'
+  annotate_background: green
+  awb_mode: auto
+  capture_format: png
+  exposure_mode: auto
+  photo_effect: solarize
+  resolution: (1332, 990)
+pi_cam_app:
+  ip: 0.0.0.0
+  port: 8099
