@@ -282,7 +282,7 @@ def shutdown():
   os.system("sudo shutdown -h now")
 
 def pass_func():
-  logger.warning("This function has not been implemented for {mode: \'{0}\',  camera function: \'{1}\'} yet".format(mode, camera_func))
+  logger.warning("This function has not been implemented for mode: \'{0}\',  camera function: \'{1}\'".format(mode, camera_func))
 
 if __name__ == '__main__':
   global logger
