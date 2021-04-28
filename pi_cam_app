@@ -15,7 +15,8 @@ from flask import request, jsonify, Flask # package for the webapp
 
 camera = PiCamera()
 app = Flask(__name__)
-menu_items = ['photo_effect' , 'resolution', 'awb_mode', 'exposure_mode', 'capture_format', 'annotate_background']
+menu_items = ['photo_effect' , 'resolution', 'awb_mode', 'exposure_mode', 'capture_format', 'annotate_background', 
+  'speaker_volume']
 photo_effects = [ 'none', 'negative', 'solarize', 'sketch', 'denoise', 'emboss', 'oilpaint', 'hatch', 'gpen', 'pastel', 
   'watercolor', 'film', 'blur', 'saturation', 'colorswap', 'washedout', 'posterise', 'colorpoint', 
   'colorbalance', 'cartoon', 'deinterlace1', 'deinterlace2' ]
@@ -40,6 +41,7 @@ annotate_background_colors = ['aliceblue', 'antiquewhite', 'aqua', 'antiquewhite
   'pink', 'plum', 'powderblue', 'purple', 'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen',
   'seashell', 'sienna', 'silver', 'skyblue', 'slateblue', 'slategray', 'slategrey', 'snow', 'springgreen', 'steelblue', 'tan',
   'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen']
+speaker_volumes = [0, 20, 40, 60, 80, 100]  # vol = x/4 + 75
 
 HOME_DIR = "/home/pi/"
 IMAGES_DIR = HOME_DIR + "Pictures/"
@@ -73,7 +75,8 @@ def setup():
     'awb_mode': awb_modes,
     'exposure_mode': exposure_modes,
     'capture_format': capture_formats,
-    'annotate_background': annotate_background_colors
+    'annotate_background': annotate_background_colors,
+    'speaker_volume': speaker_volumes
   }
   menu_functions = {
     'photo_effect': set_photo_effect,
@@ -81,7 +84,8 @@ def setup():
     'awb_mode': set_awb_mode,
     'exposure_mode': set_exposure_mode,
     'capture_format': set_capture_format,
-    'annotate_background': set_annotate_background
+    'annotate_background': set_annotate_background,
+    'speaker_volume': set_speaker_volume
   }
   config_file = read_config_file()
   # read config dict's into more specific variables
@@ -93,7 +97,8 @@ def setup():
     'awb_mode': camera_settings['awb_mode'],
     'exposure_mode': camera_settings['exposure_mode'],
     'capture_format': camera_settings['capture_format'],
-    'annotate_background': camera_settings['annotate_background']
+    'annotate_background': camera_settings['annotate_background'],
+    'speaker_volume': camera_settings['camera_settings']
   }
   logger.debug("{0}".format(current_menu_values))
 
@@ -300,6 +305,11 @@ def set_annotate_background(color):
   camera.annotate_background = Color(color)
   logger.info("Set annotation background color to \'{0}\'".format(color))
   return 'Annotate Background'
+
+def set_speaker_volume(vol):
+  speaker_percentage = (vol / 4) + 75 if vol else 0
+  os.system("amixer sset -c 2 \'Speaker\',0 {0}%".format(speaker_percentage))
+  return "Speaker Volume"
 
 def set_image_text(thread_name, wait_seconds, display_str, value_name):
   logger.info("Thread \'{0}\': starting".format(thread_name))

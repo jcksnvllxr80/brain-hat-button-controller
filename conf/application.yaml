@@ -5,6 +5,7 @@ camera:
   exposure_mode: auto
   photo_effect: solarize
   resolution: (1332, 990)
+  speaker_volume: 15
 pi_cam_app:
   ip: 0.0.0.0
   port: 8099
