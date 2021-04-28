@@ -98,7 +98,7 @@ def setup():
     'exposure_mode': camera_settings['exposure_mode'],
     'capture_format': camera_settings['capture_format'],
     'annotate_background': camera_settings['annotate_background'],
-    'speaker_volume': camera_settings['camera_settings']
+    'speaker_volume': camera_settings['speaker_volume']
   }
   logger.debug("{0}".format(current_menu_values))
 
