@@ -129,18 +129,24 @@ def obj_recognition():
 def pi_cam_app():
   start_or_stop_pi_cam_preview()
 
-def up_menu_item():
-  next_menu_item('up')
+def cam_mode_up():
+  if camera_func == 'menu':
+    next_menu_item('up')
+  else:
+    cam_zoom('in')
 
-def down_menu_item():
-  next_menu_item('down')
+def cam_mode_down():
+  if camera_func == 'menu':
+    next_menu_item('down')
+  else:
+    cam_zoom('out')
 
 def next_menu_item(dir):
-  if camera_func == 'menu':
-    make_get_api_call("http://127.0.0.1:{0}/next_menu_item/{1}".format(pi_cam_app_settings['port'], dir))
-  else:
-    pass
-    # TODO: make zoom API call with direction
+  make_get_api_call("http://127.0.0.1:{0}/next_menu_item/{1}".format(pi_cam_app_settings['port'], dir))
+
+def cam_zoom(dir)
+  # TODO: make API cal for zoom
+  pass_func()
 
 def left_value():
   next_value('left')
@@ -182,13 +188,13 @@ def make_get_api_call(api_call_str):
 
 def joystick_up_handler(was_long_press):
   if mode == 'camera':
-    short_or_long_press_func(was_long_press, up_menu_item, shutdown)
+    short_or_long_press_func(was_long_press, cam_mode_up, shutdown)
   else:
     short_or_long_press_func(was_long_press, pass_func, shutdown)
 
 def joystick_down_handler(was_long_press):
   if mode == 'camera':
-    short_or_long_press_func(was_long_press, down_menu_item, pi_cam_app)
+    short_or_long_press_func(was_long_press, cam_mode_down, pi_cam_app)
   else:
     short_or_long_press_func(was_long_press, pass_func, pi_cam_app)
 
