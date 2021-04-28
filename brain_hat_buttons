@@ -164,7 +164,7 @@ def right_cam_func():
   next_cam_function('right')
 
 def next_cam_function(dir):
-  current_cam_func_ind = camera_funcs.index(camera_funcs[camera_func])
+  current_cam_func_ind = camera_funcs.index(camera_func)
   if dir == 'left':
     if current_cam_func_ind == 0:
       next_cam_func = camera_funcs[len(camera_funcs) - 1]
