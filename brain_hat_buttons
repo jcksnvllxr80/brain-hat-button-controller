@@ -142,6 +142,7 @@ def next_menu_item(dir):
   if camera_func == 'menu':
     make_get_api_call("http://127.0.0.1:{0}/next_menu_item/{1}".format(pi_cam_app_settings['port'], dir))
   else:
+    pass
     # TODO: make zoom API call with direction
 
 def left_value():
