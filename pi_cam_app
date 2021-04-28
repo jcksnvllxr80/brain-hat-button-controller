@@ -242,7 +242,7 @@ def go_to_next_menu_item(dir):
     else:
       next_menu_item = menu_items[current_menu_item_ind + 1]
   current_menu_item = next_menu_item
-  display_str = "{0} -> {1}".format(current_menu_item, current_menu_values[current_menu_item])
+  display_str = "{0} = {1}".format(current_menu_item.replace("_", " "), current_menu_values[current_menu_item])
   Thread(target=set_image_text, args=('set_image_text', 3, 'Menu', display_str)).start()
   msg = "Changed menu item {0} one to \'{1}\'".format(dir, next_menu_item)
   logger.info(msg)
