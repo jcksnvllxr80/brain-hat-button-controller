@@ -307,7 +307,7 @@ def set_image_text(thread_name, wait_seconds, display_str, value_name):
   desired_res = int(0.07 * min(current_menu_values['resolution']))
   camera.annotate_text_size = desired_res if desired_res < 160 else 160
   camera.annotate_text = "{0}: {1}".format(display_str, value_name)
-  os.system("echo {0}: {1} | sudo festival --tts & ".format(display_str, value_name))
+  os.system("echo \"{0}: {1}\" | sudo festival --tts & ".format(display_str, value_name))
   time.sleep(wait_seconds)
   camera.annotate_text = ''
   logger.info("Thread \'{0}\': finishing".format(thread_name))
