@@ -108,18 +108,15 @@ def pi_cam_is_previewing():
   return True if response == 'True' else False
 
 def photo():
-  if mode == 'camera':
-    if camera_func == ["capture", 'menu']:
-      logger.info("Taking photo")
-      make_get_api_call("http://127.0.0.1:{0}/take_photo/{1}".format(pi_cam_app_settings['port'], create_new_unique_filename()))
-    elif camera_func == 'stopmotion':
-      logger.info("Adding stopmotion frame")
-      # TODO: add frame to ~/stopmotion, when leaving stopmotion make video and clean up dir
-    elif camera_func == 'video':
-      logger.info("recording video")
-      # TODO: take video and save in  ~/Videos
-    else:
-      pass_func()
+  if camera_func in ["capture", 'menu']:
+    logger.info("Taking photo")
+    make_get_api_call("http://127.0.0.1:{0}/take_photo/{1}".format(pi_cam_app_settings['port'], create_new_unique_filename()))
+  elif camera_func == 'stopmotion':
+    logger.info("Adding stopmotion frame")
+    # TODO: add frame to ~/stopmotion, when leaving stopmotion make video and clean up dir
+  elif camera_func == 'video':
+    logger.info("recording video")
+    # TODO: take video and save in  ~/Videos
   else:
     pass_func()
 
@@ -211,7 +208,10 @@ def joystick_select_handler(was_long_press):
   short_or_long_press_func(was_long_press, pass_func, reboot)
 
 def button_handler(was_long_press):
-  short_or_long_press_func(was_long_press, photo, obj_recognition)
+  if mode == 'camera':
+    short_or_long_press_func(was_long_press, photo, obj_recognition)
+  else:
+    short_or_long_press_func(was_long_press, pass_func, obj_recognition)
 
 def get_press_length(button, button_name):
   long_pressed = 0
