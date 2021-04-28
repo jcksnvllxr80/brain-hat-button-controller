@@ -144,7 +144,7 @@ def cam_mode_down():
 def next_menu_item(dir):
   make_get_api_call("http://127.0.0.1:{0}/next_menu_item/{1}".format(pi_cam_app_settings['port'], dir))
 
-def cam_zoom(dir)
+def cam_zoom(dir):
   # TODO: make API cal for zoom
   pass_func()
 
