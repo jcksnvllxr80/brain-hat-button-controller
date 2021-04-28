@@ -19,6 +19,8 @@ JOYSELECT_PIN = board.D16
 HOME_DIR = '/home/pi/brain-hat-button-controller/'
 
 mode = 'default'
+camera_func = 'none'
+camera_funcs = ['menu', 'capture', 'video', 'stopmotion']
 buttons = [BUTTON_PIN, JOYUP_PIN, JOYDOWN_PIN,
            JOYLEFT_PIN, JOYRIGHT_PIN, JOYSELECT_PIN]
 for i,pin in enumerate(buttons):
@@ -60,7 +62,14 @@ def read_config_file():
 def change_mode(new_mode='default'):
   global mode
   mode = new_mode
-  logger.info("Mode changed to " + mode)
+  if mode == 'default':
+    change_camera_func('none')
+  logger.info("Mode changed to {0}".format(mode))
+
+def change_camera_func(new_camera_func='capture'):
+  global camera_func
+  camera_func = new_camera_func
+  logger.info("Camera function changed to {0}".format(camera_func))
 
 def start_tf_obj_recognition():
   # NOTE: in order to get the speaker to work on the brainCraft hat, the following line
@@ -100,13 +109,19 @@ def pi_cam_is_previewing():
 
 def photo():
   if mode == 'camera':
-    logger.info("Taking photo")
-    make_get_api_call("http://127.0.0.1:{0}/take_photo/{1}".format(pi_cam_app_settings['port'], create_new_unique_filename()))
-  elif mode == 'stopmotion':
-    logger.info("Adding stopmotion frame")
-    # TODO: add frame to ~/stopmotion, when leaving stopmotion make video and clean up dir
+    if camera_func == ["capture", 'menu']:
+      logger.info("Taking photo")
+      make_get_api_call("http://127.0.0.1:{0}/take_photo/{1}".format(pi_cam_app_settings['port'], create_new_unique_filename()))
+    elif camera_func == 'stopmotion':
+      logger.info("Adding stopmotion frame")
+      # TODO: add frame to ~/stopmotion, when leaving stopmotion make video and clean up dir
+    elif camera_func == 'video':
+      logger.info("recording video")
+      # TODO: take video and save in  ~/Videos
+    else:
+      pass_func()
   else:
-    logger.warning("Mode not correct for the use of this function")
+    pass_func()
 
 def create_new_unique_filename():
   return "{0}".format(datetime.now().strftime("%Y%m%d_%H%M%S"))
@@ -124,10 +139,10 @@ def down_menu_item():
   next_menu_item('down')
 
 def next_menu_item(dir):
-  if mode == 'camera':
+  if camera_func == 'menu':
     make_get_api_call("http://127.0.0.1:{0}/next_menu_item/{1}".format(pi_cam_app_settings['port'], dir))
   else:
-    logger.warning("Mode not correct for the use of this function")
+    # TODO: make zoom API call with direction
 
 def left_value():
   next_value('left')
@@ -136,10 +151,31 @@ def right_value():
   next_value('right')
 
 def next_value(dir):
-  if mode == 'camera':
+  if camera_func == 'menu':
     make_get_api_call("http://127.0.0.1:{0}/next_value/{1}".format(pi_cam_app_settings['port'], dir))
   else:
-    logger.warning("Mode not correct for the use of this function")
+    pass_func()
+
+def left_cam_func():
+  next_cam_function('left')
+
+def right_cam_func():
+  next_cam_function('right')
+
+def next_cam_function(dir):
+  current_cam_func_ind = camera_funcs.index(camera_funcs[camera_func])
+  if dir == 'left':
+    if current_cam_func_ind == 0:
+      next_cam_func = camera_funcs[len(camera_funcs) - 1]
+    else:
+      next_cam_func = camera_funcs[current_cam_func_ind - 1]
+  else:
+    if current_cam_func_ind == len(camera_funcs) - 1:
+      next_cam_func = camera_funcs[0]
+    else:
+      next_cam_func = camera_funcs[current_cam_func_ind + 1]
+  change_camera_func(next_cam_func)
+  make_get_api_call("http://127.0.0.1:{0}/display_on_screen/Function/{1}".format(pi_cam_app_settings['port'], next_cam_func))
 
 def make_get_api_call(api_call_str):
   logger.info("Making a GET call to \'{0}\'".format(api_call_str))
@@ -147,16 +183,28 @@ def make_get_api_call(api_call_str):
   logger.info("Response from api call: {0}".format(response.content.decode("utf-8")))
 
 def joystick_up_handler(was_long_press):
-  short_or_long_press_func(was_long_press, up_menu_item, shutdown)
+  if mode == 'camera':
+    short_or_long_press_func(was_long_press, up_menu_item, shutdown)
+  else:
+    short_or_long_press_func(was_long_press, pass_func, shutdown)
 
 def joystick_down_handler(was_long_press):
-  short_or_long_press_func(was_long_press, down_menu_item, stopmotion_animation)
+  if mode == 'camera':
+    short_or_long_press_func(was_long_press, down_menu_item, pi_cam_app)
+  else:
+    short_or_long_press_func(was_long_press, pass_func, pi_cam_app)
 
 def joystick_left_handler(was_long_press):
-  short_or_long_press_func(was_long_press, left_value, pi_cam_app)
+  if mode == 'camera':
+    short_or_long_press_func(was_long_press, left_value, left_cam_func)
+  else:
+    short_or_long_press_func(was_long_press, pass_func, pass_func)
 
 def joystick_right_handler(was_long_press):
-  short_or_long_press_func(was_long_press, right_value, video_recorder)
+  if mode == 'camera':
+    short_or_long_press_func(was_long_press, right_value, right_cam_func)
+  else:
+    short_or_long_press_func(was_long_press, pass_func, pass_func)
 
 def joystick_select_handler(was_long_press):
   short_or_long_press_func(was_long_press, pass_func, reboot)
@@ -214,6 +262,7 @@ def start_or_stop_pi_cam_preview():
     if pid:
       kill_pid(pid)
     change_mode('camera')
+    change_camera_func()
     pi_cam_preview('start')
 
 def short_or_long_press_func(was_long_press, short_func, long_func):
@@ -232,7 +281,7 @@ def shutdown():
   os.system("sudo shutdown -h now")
 
 def pass_func():
-  pass
+  logger.warning("This function has not been implemented for {mode: \'{0}\',  camera function: \'{1}\'} yet".format(mode, camera_func))
 
 if __name__ == '__main__':
   global logger

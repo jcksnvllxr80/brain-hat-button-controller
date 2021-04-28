@@ -150,6 +150,11 @@ def next_value(direction):
   message = handle_next_value_request(direction)
   return message
 
+@app.route('/display_on_screen/<key>/<value>', methods=['GET'])
+def display_on_screen(key, value):
+  Thread(target=set_image_text, args=('set_image_text', 3, key, value)).start()
+  return "Message displayed with text {0}: {1}".format(key, value)
+
 @app.route('/help', methods=['GET'])
 def help_request():
   message = "This is the help message."
