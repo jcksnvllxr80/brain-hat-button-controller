@@ -9,7 +9,7 @@ camera:
   meter_mode: average
   horizontal_flip: False
   vertical_flip: False
-  iso_mode: 0  # zero is auto
+  iso: 0  # zero is auto
   rotation: 0
   saturation: 0
   sharpness: 0
