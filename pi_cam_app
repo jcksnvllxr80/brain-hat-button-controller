@@ -359,7 +359,7 @@ def set_annotate_background(color):
 def set_speaker_volume(vol):
   speaker_percentage = (vol / 4) + 75 if vol else 0
   os.system("amixer sset -c 2 \'Speaker\',0 {0}%".format(speaker_percentage))
-  logger.info("Set speaker volume to {0}%".format(speaker_percentage))
+  logger.info("Set speaker volume to \'{0}\' which translates to {1}%".format(vol, speaker_percentage))
   return "Speaker Volume"
 
 def set_meter_mode(mode):
