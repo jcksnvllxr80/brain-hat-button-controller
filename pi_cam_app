@@ -130,7 +130,7 @@ def setup():
     'annotate_background': camera_settings['annotate_background'],
     'speaker_volume': camera_settings['speaker_volume'],
     'meter_mode': camera_settings['meter_mode'],
-    'horizontal_flip': camera_settings['horizontal_flip']
+    'horizontal_flip': camera_settings['horizontal_flip'],
     'vertical_flip': camera_settings['vertical_flip'],
     'iso': camera_settings['iso'],
     'rotation': camera_settings['rotation'],
