@@ -362,9 +362,6 @@ def set_horizontal_flip(h_flip):
   logger.info("Set horizontal flip to \'{0}\'".format(h_flip))
   return 'Horizontal Flip'
 
-    'video_denoise': set_video_denoise,
-    'video_stabilization': set_video_stabilization
-
 def set_vertical_flip(v_flip):
   camera.vflip = v_flip
   logger.info("Set vertical flip to \'{0}\'".format(v_flip))
