@@ -1,5 +1,14 @@
 #!/usr/bin/python
 
+''' TODO:
+- zoom = (x, y, w, h) tuple of floating point values ranging from 0.0 to 1.0, 
+  indicating the proportion of the image to include in the output 
+  (this is also known as the “Region of Interest” or ROI). The default value is (0.0, 0.0, 1.0, 1.0)
+- video
+- stopmotion
+- when a thread starts, kill the last thread
+'''
+
 import time
 import os
 import sys
