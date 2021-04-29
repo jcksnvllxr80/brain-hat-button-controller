@@ -44,6 +44,14 @@ annotate_background_colors = ['aliceblue', 'antiquewhite', 'aqua', 'antiquewhite
 speaker_volumes = [0, 20, 40, 60, 80, 100]  # vol = x/4 + 75
 meter_modes = ['average', 'spot', 'backlit', 'matrix']
 horizontal_flip_options = [True, False]
+vertical_flip_options = [True, False]
+iso_values = [0, 100, 200, 320, 400, 500, 640, 800]  # zero auto
+rotation_angles = [0, 90, 180, 270]
+saturation_range = list(range(-100, 101 ,5))  # default=0
+sharpness_range = list(range(-100, 101 ,5))
+shutter_speed_range = [0]  # zero auto; TODO: find out the range of this attribute
+video_denoise_options = [True, False]  # default=True
+video_stabilization_options = [True, False]  # default=False
 
 HOME_DIR = "/home/pi/"
 IMAGES_DIR = HOME_DIR + "Pictures/"
@@ -80,7 +88,15 @@ def setup():
     'annotate_background': annotate_background_colors,
     'speaker_volume': speaker_volumes,
     'meter_mode': meter_modes,
-    'horizontal_flip': horizontal_flip_options
+    'horizontal_flip': horizontal_flip_options,
+    'vertical_flip': vertical_flip_options,
+    'iso': iso_values,
+    'rotation': rotation_angles,
+    'saturation': saturation_range,
+    'sharpness': sharpness_range,
+    'shutter_speed': shutter_speed_range,
+    'video_denoise': video_denoise_options,
+    'video_stabilization': video_stabilization_options
   }
   menu_functions = {
     'photo_effect': set_photo_effect,
@@ -91,7 +107,15 @@ def setup():
     'annotate_background': set_annotate_background,
     'speaker_volume': set_speaker_volume,
     'meter_mode': set_meter_mode,
-    'horizontal_flip': set_horizontal_flip
+    'horizontal_flip': set_horizontal_flip,
+    'vertical_flip': set_vertical_flip,
+    'iso': set_iso,
+    'rotation': set_rotation,
+    'saturation': set_saturation,
+    'sharpness': set_sharpness,
+    'shutter_speed': set_shutter_speed,
+    'video_denoise': set_video_denoise,
+    'video_stabilization': set_video_stabilization
   }
   config_file = read_config_file()
   # read config dict's into more specific variables
@@ -106,7 +130,15 @@ def setup():
     'annotate_background': camera_settings['annotate_background'],
     'speaker_volume': camera_settings['speaker_volume'],
     'meter_mode': camera_settings['meter_mode'],
-    'horizontal_flip': False
+    'horizontal_flip': camera_settings['horizontal_flip']
+    'vertical_flip': camera_settings['vertical_flip'],
+    'iso': camera_settings['iso'],
+    'rotation': camera_settings['rotation'],
+    'saturation': camera_settings['saturation'],
+    'sharpness': camera_settings['sharpness'],
+    'shutter_speed': camera_settings['shutter_speed'],
+    'video_denoise': camera_settings['video_denoise'],
+    'video_stabilization': camera_settings['video_stabilization']
   }
   logger.debug("{0}".format(current_menu_values))
 
@@ -329,6 +361,49 @@ def set_horizontal_flip(h_flip):
   camera.hflip = h_flip
   logger.info("Set horizontal flip to \'{0}\'".format(h_flip))
   return 'Horizontal Flip'
+
+    'video_denoise': set_video_denoise,
+    'video_stabilization': set_video_stabilization
+
+def set_vertical_flip(v_flip):
+  camera.vflip = v_flip
+  logger.info("Set vertical flip to \'{0}\'".format(v_flip))
+  return 'Vertical Flip'
+
+def set_iso(iso):
+  camera.iso = iso
+  logger.info("Set ISO to \'{0}\'".format(iso))
+  return 'ISO'
+
+def set_rotation(rotation):
+  camera.rotation = rotation
+  logger.info("Set rotation to \'{0}\'".format(rotation))
+  return 'Rotation'
+
+def set_saturation(saturation):
+  camera.saturation = saturation
+  logger.info("Set saturation to \'{0}\'".format(saturation))
+  return 'Saturation'
+
+def set_sharpness(sharpness):
+  camera.sharpness = sharpness
+  logger.info("Set sharpness to \'{0}\'".format(sharpness))
+  return 'Sharpness'
+
+def set_shutter_speed(shutter_speed):
+  camera.shutter_speed = shutter_speed
+  logger.info("Set shutter speed to \'{0}\'".format(shutter_speed))
+  return 'Shutter Speed'
+
+def set_video_denoise(h_flip):
+  camera.video_denoise = video_denoise
+  logger.info("Set video denoise to \'{0}\'".format(video_denoise))
+  return 'Video Denoise'
+
+def set_video_stabilization(video_stabilization):
+  camera.video_stabilization = video_stabilization
+  logger.info("Set video stabilization to \'{0}\'".format(video_stabilization))
+  return 'Video Stabilization'
 
 def set_image_text(thread_name, wait_seconds, display_str, value_name):
   logger.info("Thread \'{0}\': starting".format(thread_name))
