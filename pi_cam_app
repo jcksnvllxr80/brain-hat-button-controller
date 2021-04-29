@@ -402,7 +402,7 @@ def set_shutter_speed(shutter_speed):
   logger.info("Set shutter speed to \'{0}\'".format(shutter_speed))
   return 'Shutter Speed'
 
-def set_video_denoise(h_flip):
+def set_video_denoise(video_denoise):
   camera.video_denoise = video_denoise
   logger.info("Set video denoise to \'{0}\'".format(video_denoise))
   return 'Video Denoise'
