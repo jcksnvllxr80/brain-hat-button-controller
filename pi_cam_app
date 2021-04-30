@@ -359,14 +359,9 @@ def do_zoom(dir):
   return msg
 
 def calculate_zoom(zoom_i):
-  current_resolution = current_menu_values['resolution']
-  res_x = current_resolution[0]
-  res_y = current_resolution[1]
-  x = int(zoom_i * res_x / len(zoom_range))
-  y = int(zoom_i * res_y / len(zoom_range))
-  w = res_x - 2 * x
-  h = res_y - 2 * y
-  return (x, y, w, h)
+  x_y = zoom_i / (2 * len(zoom_range))
+  w_h = 1 - 2 * x_y
+  return (x_y, x_y, w_h, w_h)
 
 def set_photo_effect(effect):
   camera.image_effect = effect
