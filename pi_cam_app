@@ -345,22 +345,27 @@ def do_zoom(dir):
   (this is also known as the “Region of Interest” or ROI). The default value is (0.0, 0.0, 1.0, 1.0)
   '''
   global zoom_index
+  msg = "Fully zoomed {0}!".format(dir)
   if dir == 'out':
     if zoom_index > 0:
       zoom_index -= 1
+      msg = calculate_and_set_zoom()
   else:
     if zoom_index < len(zoom_range) - 1:
       zoom_index += 1
-  zoom_tuple = calculate_zoom(zoom_index)
-  display_text = set_zoom(*zoom_tuple)
-  Thread(target=set_image_text, args=('set_image_text', 3, display_text, str(zoom_tuple))).start()
-  msg = "Zoomed {0} to, {1}%".format(dir, zoom_index * 5)
+      msg = calculate_and_set_zoom()
   logger.info(msg)
   return msg
 
+def calculate_and_set_zoom():
+  zoom_tuple = calculate_zoom(zoom_index)
+  display_text = set_zoom(*zoom_tuple)
+  Thread(target=set_image_text, args=('set_image_text', 3, display_text, str(zoom_tuple), mute=True)).start()
+  return "Zoomed {0} to, {1}%".format(dir, zoom_index * 5)
+
 def calculate_zoom(zoom_i):
-  x_y = zoom_i / (2 * len(zoom_range))
-  w_h = 1 - 2 * x_y
+  x_y = round(zoom_i / (2 * len(zoom_range)), 3)
+  w_h = round(1 - 2 * x_y, 3)
   return (x_y, x_y, w_h, w_h)
 
 def set_photo_effect(effect):
@@ -454,13 +459,14 @@ def set_zoom(x, y, w, h):
   camera.zoom = (x, y, w, h)
   return 'Zoom'
 
-def set_image_text(thread_name, wait_seconds, display_str, value_name):
+def set_image_text(thread_name, wait_seconds, display_str, value_name, mute=None):
   logger.info("Thread \'{0}\': starting".format(thread_name))
   logger.debug("Resolution: {0}".format(current_menu_values['resolution']))
   desired_res = int(0.07 * min(current_menu_values['resolution']))
   camera.annotate_text_size = desired_res if desired_res < 160 else 160
   camera.annotate_text = "{0}: {1}".format(display_str, value_name)
-  os.system("echo \"{1}\" | sudo festival --tts & ".format(display_str, value_name))
+  if not mute:
+    os.system("echo \"{1}\" | sudo festival --tts & ".format(display_str, value_name))
   time.sleep(wait_seconds)
   camera.annotate_text = ''
   logger.info("Thread \'{0}\': finishing".format(thread_name))
