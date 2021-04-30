@@ -360,7 +360,7 @@ def do_zoom(dir):
 def calculate_and_set_zoom():
   zoom_tuple = calculate_zoom(zoom_index)
   display_text = set_zoom(*zoom_tuple)
-  Thread(target=set_image_text, args=('set_image_text', 3, display_text, str(zoom_tuple), mute=True)).start()
+  Thread(target=set_image_text, args=('set_image_text', 3, display_text, str(zoom_tuple), True)).start()
   return "Zoomed {0} to, {1}%".format(dir, zoom_index * 5)
 
 def calculate_zoom(zoom_i):
