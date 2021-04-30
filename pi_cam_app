@@ -25,8 +25,8 @@ from flask import request, jsonify, Flask # package for the webapp
 camera = PiCamera()
 app = Flask(__name__)
 menu_items = ['photo_effect' , 'resolution', 'awb_mode', 'exposure_mode', 'capture_format', 'annotate_background', 
-  'speaker_volume', 'meter_mode', 'horizontal_flip', 'iso', 'rotation', 'saturation', 'sharpness', 'shutter_speed', 
-  'video_denoise', 'video_stabilization']
+  'speaker_volume', 'meter_mode', 'horizontal_flip', 'vertical_flip', 'iso', 'rotation', 'saturation', 'sharpness', 
+  'shutter_speed', 'video_denoise', 'video_stabilization']
 photo_effects = [ 'none', 'negative', 'solarize', 'sketch', 'denoise', 'emboss', 'oilpaint', 'hatch', 'gpen', 'pastel', 
   'watercolor', 'film', 'blur', 'saturation', 'colorswap', 'washedout', 'posterise', 'colorpoint', 
   'colorbalance', 'cartoon', 'deinterlace1', 'deinterlace2' ]
