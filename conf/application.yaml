@@ -16,6 +16,9 @@ camera:
   shutter_speed: 0  # zero is auto
   video_denoise: True
   video_stabilization: False
+  zoom_speech: False
+  menu_speech: False
+  value_speech: False
 pi_cam_app:
   ip: 0.0.0.0
   port: 8099
