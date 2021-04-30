@@ -1,9 +1,6 @@
 #!/usr/bin/python
 
 ''' TODO:
-- zoom = (x, y, w, h) tuple of floating point values ranging from 0.0 to 1.0, 
-  indicating the proportion of the image to include in the output 
-  (this is also known as the “Region of Interest” or ROI). The default value is (0.0, 0.0, 1.0, 1.0)
 - video
 - stopmotion
 - when a thread starts, kill the last thread
@@ -62,6 +59,7 @@ sharpness_range = list(range(-100, 101 ,5))
 shutter_speed_range = [0]  # zero auto; TODO: find out the range of this attribute
 video_denoise_options = [True, False]  # default=True
 video_stabilization_options = [True, False]  # default=False
+zoom_range = list(range(0, 100 ,5)) 
 
 HOME_DIR = "/home/pi/"
 IMAGES_DIR = HOME_DIR + "Pictures/"
@@ -89,6 +87,8 @@ def setup():
   global menu_items_dict
   global menu_functions
   global pi_cam_app_settings
+  global zoom_index
+  zoom_index = 0
   menu_items_dict = {
     'photo_effect': photo_effects,
     'resolution': resolutions,
@@ -206,6 +206,11 @@ def next_value(direction):
   message = handle_next_value_request(direction)
   return message
 
+@app.route('/zoom/<direction>', methods=['GET'])
+def zoom(direction):
+  message = handle_zoom(direction)
+  return message
+
 @app.route('/display_on_screen/<key>/<value>', methods=['GET'])
 def display_on_screen(key, value):
   Thread(target=set_image_text, args=('set_image_text', 3, key, value)).start()
@@ -283,6 +288,14 @@ def handle_next_value_request(direction):
     logger.warning(msg)
   return msg
 
+def handle_zoom(direction):
+  if direction in ['in', 'out']:
+    msg = do_zoom(direction)
+  else:
+    msg = "No action taken for invalid direction: " + direction
+    logger.warning(msg)
+  return msg
+
 def go_to_next_menu_item(dir):
   global current_menu_item
   current_menu_item_ind = menu_items.index(current_menu_item)
@@ -324,6 +337,37 @@ def go_to_next_value(dir):
   msg = "Changed value one to the {0}, \'{1}\'".format(dir, next_value)
   logger.info(msg)
   return msg
+
+def do_zoom(dir):
+  '''
+  zoom = (x, y, w, h) tuple of floating point values ranging from 0.0 to 1.0, 
+  indicating the proportion of the image to include in the output 
+  (this is also known as the “Region of Interest” or ROI). The default value is (0.0, 0.0, 1.0, 1.0)
+  '''
+  global zoom_index
+  if dir == 'out':
+    if zoom_index > 0:
+      zoom_index -= 1
+  else:
+    if zoom_index < len(zoom_range) - 1:
+      zoom_index += 1
+
+  calculate_zoom(zoom_index)
+  Thread(target=set_image_text, args=('set_image_text', 3, 'Zoom', next_value)).start()
+  write_value_to_config_file(current_menu_values[current_menu_item])
+  msg = "Changed value one to the {0}, \'{1}\'".format(dir, next_value)
+  logger.info(msg)
+  return msg
+
+def calculate_zoom(zoom_i):
+  current_resolution = current_menu_values['resolution']
+  res_x = current_resolution[0]
+  res_y = current_resolution[1]
+  x = int(zoom_i * res_x / len(zoom_range))
+  y = int(zoom_i * res_y / len(zoom_range))
+  w = res_x - 2 * x
+  h = res_y - 2 * y
+  return (x, y, w, h)
 
 def set_photo_effect(effect):
   camera.image_effect = effect
