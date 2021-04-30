@@ -23,7 +23,7 @@ camera = PiCamera()
 app = Flask(__name__)
 menu_items = ['photo_effect' , 'resolution', 'awb_mode', 'exposure_mode', 'capture_format', 'annotate_background', 
   'speaker_volume', 'meter_mode', 'horizontal_flip', 'vertical_flip', 'iso', 'rotation', 'saturation', 'sharpness', 
-  'shutter_speed', 'video_denoise', 'video_stabilization']
+  'shutter_speed', 'video_denoise', 'video_stabilization', 'zoom_speech', 'menu_speech', 'value_speech']
 photo_effects = [ 'none', 'negative', 'solarize', 'sketch', 'denoise', 'emboss', 'oilpaint', 'hatch', 'gpen', 'pastel', 
   'watercolor', 'film', 'blur', 'saturation', 'colorswap', 'washedout', 'posterise', 'colorpoint', 
   'colorbalance', 'cartoon', 'deinterlace1', 'deinterlace2' ]
@@ -60,6 +60,9 @@ shutter_speed_range = [0]  # zero auto; TODO: find out the range of this attribu
 video_denoise_options = [True, False]  # default=True
 video_stabilization_options = [True, False]  # default=False
 zoom_range = list(range(0, 100 ,5)) 
+zoom_speech_options = [True, False]
+menu_speech_options = [True, False]
+value_speech_options = [True, False]
 
 HOME_DIR = "/home/pi/"
 IMAGES_DIR = HOME_DIR + "Pictures/"
@@ -106,7 +109,10 @@ def setup():
     'sharpness': sharpness_range,
     'shutter_speed': shutter_speed_range,
     'video_denoise': video_denoise_options,
-    'video_stabilization': video_stabilization_options
+    'video_stabilization': video_stabilization_options,
+    'zoom_speech': zoom_speech_options,
+    'menu_speech': menu_speech_options,
+    'value_speech': value_speech_options
   }
   menu_functions = {
     'photo_effect': set_photo_effect,
@@ -125,7 +131,10 @@ def setup():
     'sharpness': set_sharpness,
     'shutter_speed': set_shutter_speed,
     'video_denoise': set_video_denoise,
-    'video_stabilization': set_video_stabilization
+    'video_stabilization': set_video_stabilization,
+    'zoom_speech': set_zoom_speech,
+    'menu_speech': set_menu_speech,
+    'value_speech': set_value_speech
   }
   config_file = read_config_file()
   # read config dict's into more specific variables
@@ -148,7 +157,10 @@ def setup():
     'sharpness': camera_settings['sharpness'],
     'shutter_speed': camera_settings['shutter_speed'],
     'video_denoise': camera_settings['video_denoise'],
-    'video_stabilization': camera_settings['video_stabilization']
+    'video_stabilization': camera_settings['video_stabilization'],
+    'zoom_speech': camera_settings['zoom_speech'], 
+    'menu_speech': camera_settings['menu_speech'], 
+    'value_speech': camera_settings['value_speech']
   }
   logger.debug("{0}".format(current_menu_values))
 
@@ -211,8 +223,8 @@ def zoom(direction):
   message = handle_zoom(direction)
   return message
 
-@app.route('/display_on_screen/<key>/<value>', methods=['GET'])
-def display_on_screen(key, value):
+@app.route('/display_and_speak/<key>/<value>', methods=['GET'])
+def display_and_speak(key, value):
   Thread(target=set_image_text, args=('set_image_text', 3, key, value)).start()
   return "Message displayed with text {0}: {1}".format(key, value)
 
@@ -241,6 +253,7 @@ def handle_pi_cam_preview_request(action):
     load_camera_settings_with_config()
     camera.start_preview()
     camera.preview_fullscreen = True
+    display_and_speak('Mode', 'camera')
     msg = "Started pi cam preview."
   else:
     camera.stop_preview()
@@ -311,7 +324,7 @@ def go_to_next_menu_item(dir):
       next_menu_item = menu_items[current_menu_item_ind + 1]
   current_menu_item = next_menu_item
   display_str = "{0} = {1}".format(current_menu_item.replace("_", " "), current_menu_values[current_menu_item])
-  Thread(target=set_image_text, args=('set_image_text', 3, 'Menu', display_str)).start()
+  Thread(target=set_image_text, args=('set_image_text', 3, 'Menu', display_str, current_menu_values['menu_speech'])).start()
   msg = "Changed menu item {0} one to \'{1}\'".format(dir, next_menu_item)
   logger.info(msg)
   return msg
@@ -332,7 +345,7 @@ def go_to_next_value(dir):
       next_value = current_menu_item_list[current_value_ind + 1]
   current_menu_values[current_menu_item] = next_value
   display_text = menu_functions[current_menu_item](next_value)
-  Thread(target=set_image_text, args=('set_image_text', 3, display_text, next_value)).start()
+  Thread(target=set_image_text, args=('set_image_text', 3, display_text, next_value, current_menu_values['value_speech'])).start()
   write_value_to_config_file(current_menu_values[current_menu_item])
   msg = "Changed value one to the {0}, \'{1}\'".format(dir, next_value)
   logger.info(msg)
@@ -360,7 +373,7 @@ def do_zoom(dir):
 def calculate_and_set_zoom():
   zoom_tuple = calculate_zoom(zoom_index)
   display_text = set_zoom(*zoom_tuple)
-  Thread(target=set_image_text, args=('set_image_text', 3, display_text, str(zoom_tuple), True)).start()
+  Thread(target=set_image_text, args=('set_image_text', 3, display_text, str(zoom_tuple), current_menu_values['zoom_speech'])).start()
   return "Zoomed {0} to, {1}%".format(dir, zoom_index * 5)
 
 def calculate_zoom(zoom_i):
@@ -459,13 +472,28 @@ def set_zoom(x, y, w, h):
   camera.zoom = (x, y, w, h)
   return 'Zoom'
 
-def set_image_text(thread_name, wait_seconds, display_str, value_name, mute=None):
+def set_zoom_speech(speak_zoom_params):
+  current_menu_values['zoom_speech'] = speak_zoom_params
+  logger.info("Set zoom speech to \'{0}\'".format(speak_zoom_params))
+  return 'Zoom Speech'
+
+def set_menu_speech(speak_menu_params):
+  current_menu_values['menu_speech'] = speak_menu_params
+  logger.info("Set menu speech to \'{0}\'".format(speak_menu_params))
+  return 'Menu Speech'
+
+def set_value_speech(speak_value_params):
+  current_menu_values['value_speech'] = speak_value_params
+  logger.info("Set value speech to \'{0}\'".format(speak_value_params))
+  return 'Value Speech'
+
+def set_image_text(thread_name, wait_seconds, display_str, value_name, speak=None):
   logger.info("Thread \'{0}\': starting".format(thread_name))
   logger.debug("Resolution: {0}".format(current_menu_values['resolution']))
   desired_res = int(0.07 * min(current_menu_values['resolution']))
   camera.annotate_text_size = desired_res if desired_res < 160 else 160
   camera.annotate_text = "{0}: {1}".format(display_str, value_name)
-  if not mute:
+  if speak:
     os.system("echo \"{1}\" | sudo festival --tts & ".format(display_str, value_name))
   time.sleep(wait_seconds)
   camera.annotate_text = ''

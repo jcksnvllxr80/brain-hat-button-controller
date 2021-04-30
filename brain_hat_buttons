@@ -178,7 +178,7 @@ def next_cam_function(dir):
     else:
       next_cam_func = camera_funcs[current_cam_func_ind + 1]
   change_camera_func(next_cam_func)
-  make_get_api_call("http://127.0.0.1:{0}/display_on_screen/Function/{1}".format(pi_cam_app_settings['port'], next_cam_func))
+  make_get_api_call("http://127.0.0.1:{0}/display_and_speak/Function/{1}".format(pi_cam_app_settings['port'], next_cam_func))
 
 def make_get_api_call(api_call_str):
   logger.info("Making a GET call to \'{0}\'".format(api_call_str))
