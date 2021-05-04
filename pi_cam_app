@@ -13,7 +13,6 @@ import os
 import sys
 import yaml
 import logging
-import socket
 from ast import literal_eval
 from traceback import format_exception
 from threading import Thread
@@ -254,8 +253,6 @@ def handle_pi_cam_preview_request(action):
     if camera.closed:
       camera = PiCamera()
     load_camera_settings_with_config()
-    Thread(target=open_socket).start()
-    os.system("sudo /bin/bash vlc tcp/h264://my_pi_address:9000/")
     camera.start_preview()
     camera.preview_fullscreen = True
     display_and_speak('Mode', 'camera')
@@ -266,20 +263,6 @@ def handle_pi_cam_preview_request(action):
     msg = "Stopped and closed pi cam preview."
   logger.info(msg)
   return msg
-
-def open_socket():
-  logger.info("Thread \'open_socket\' starting")
-  server_socket = socket.socket()
-  server_socket.bind(('0.0.0.0', 9000))
-  server_socket.listen(0)
-  connection = server_socket.accept()[0].makefile('wb')
-  try:
-    while True:
-      time.sleep(0.01)
-  finally:
-      connection.close()
-      server_socket.close()
-  logger.info("Thread \'open_socket\' stopping")
 
 def load_camera_settings_with_config():
   for menu_item in menu_items:
