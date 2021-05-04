@@ -255,7 +255,7 @@ def handle_pi_cam_preview_request(action):
       camera = PiCamera()
     load_camera_settings_with_config()
     Thread(target=open_socket).start()
-    os.system("/bin/bash vlc tcp/h264://my_pi_address:9000/")
+    os.system("sudo /bin/bash vlc tcp/h264://my_pi_address:9000/")
     camera.start_preview()
     camera.preview_fullscreen = True
     display_and_speak('Mode', 'camera')
