@@ -227,7 +227,7 @@ def zoom(direction):
 
 @app.route('/display_and_speak/<key>/<value>', methods=['GET'])
 def display_and_speak(key, value):
-  Thread(target=set_image_text, args=('set_image_text', 3, key, value)).start()
+  Thread(target=set_image_text, args=('set_image_text', 3, key, value, True)).start()
   return "Message displayed with text {0}: {1}".format(key, value)
 
 @app.route('/help', methods=['GET'])
