@@ -360,22 +360,22 @@ def record(filepath):
   Thread(target=set_image_text, args=('set_image_text', 3, 'Video', action, True)).start()
 
 def timelapse(filepath):
-  global orginal_base_filepath
+  global original_base_filepath
   global timelapse_started
   if timelapse_started:
     timelapse_started = False
-    filepath = orgiinal_base_filepath
-    os.system("convert -delay {0} -loop 0 {1}*.jpg {1}.gif".format(tl_playback_in_hundreth_s_list, filepath))
+    filepath = original_base_filepath
+    os.system("convert -delay {0} -loop 0 {1}*.jpg {1}.gif && mv {1}.gif {2} && rm -f {3}*".format(tl_playback_in_hundreth_s_list, original_base_filepath, VIDEO_DIR, TIMELAPSE_DIR))
   else:
     timelapse_started = True
-    orginal_base_filepath = filepath 
-    Thread(target=timelapse_loop).start()
+    original_base_filepath = filepath 
+    Thread(target=timelapse_loop, args=(filepath)).start()
 
 def timelapse_loop(filepath):
   logger.info("Thread \'timelapse\': starting")
   for filename in camera.capture_continuous("{0}{counter:05d}.{1}".format(filepath, capture_format)):
     logger.info("Captured {0}".format(filename))
-    for i in range(0:tl_photo_intvl_in_seconds_list):
+    for i in range(0, tl_photo_intvl_in_seconds_list):
       if not timelapse_started:
         break
       else:
