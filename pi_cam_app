@@ -366,7 +366,7 @@ def timelapse(filepath):
   if timelapse_started:
     timelapse_started = False
     filepath = original_base_filepath
-    os.system("convert -delay {0} -loop 0 {2}*.{1} {2}.gif && mv {2}.gif {3} && rm -f {4}*".format(tl_playback_in_hundreth_s_list, capture_format, original_base_filepath, VIDEO_DIR, TIMELAPSE_DIR))
+    os.system("convert -delay {0} -loop 0 {2}*.{1} {2}.gif && mv {2}.gif {3} && rm -f {4}*".format(tl_playback_in_hundreth_s, capture_format, original_base_filepath, VIDEO_DIR, TIMELAPSE_DIR))
   else:
     timelapse_started = True
     original_base_filepath = filepath 
@@ -379,7 +379,7 @@ def timelapse_loop(filepath):
     filename = "{0}{1:05d}.{2}".format(filepath, i, capture_format)
     camera.capture(filename, format=capture_format)
     logger.info("Captured {0}".format(filename))
-    for j in range(0, tl_photo_intvl_in_seconds_list):
+    for j in range(0, tl_photo_intvl_in_seconds):
       if not timelapse_started:
         break
       else:
