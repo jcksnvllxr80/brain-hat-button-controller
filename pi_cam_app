@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+# dependencies:
+#   1. imagemagick
+#     sudo apt-get install imagemagick -y
+#   2.
+
 ''' TODO:
 - video
 - stopmotion

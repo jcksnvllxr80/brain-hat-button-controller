@@ -20,7 +20,7 @@ HOME_DIR = '/home/pi/brain-hat-button-controller/'
 
 mode = 'default'
 camera_func = 'none'
-camera_funcs = ['menu', 'capture', 'video', 'stopmotion']
+camera_funcs = ['menu', 'capture', 'video', 'stopmotion', 'timelapse']
 buttons = [BUTTON_PIN, JOYUP_PIN, JOYDOWN_PIN,
            JOYLEFT_PIN, JOYRIGHT_PIN, JOYSELECT_PIN]
 for i,pin in enumerate(buttons):
@@ -111,12 +111,15 @@ def photo():
   if camera_func in ["capture", 'menu']:
     logger.info("Taking photo")
     make_get_api_call("http://127.0.0.1:{0}/take_photo/{1}".format(pi_cam_app_settings['port'], create_new_unique_filename()))
-  elif camera_func == 'stopmotion':
-    logger.info("Adding stopmotion frame")
-    # TODO: add frame to ~/stopmotion, when leaving stopmotion make video and clean up dir
   elif camera_func == 'video':
     logger.info("recording video")
     make_get_api_call("http://127.0.0.1:{0}/record_video/{1}_vid".format(pi_cam_app_settings['port'], create_new_unique_filename()))
+  elif camera_func == 'stopmotion':
+    logger.info("Adding stopmotion frame")
+    # TODO: add frame to ~/stopmotion, when leaving stopmotion make video and clean up dir
+  elif camera_func == 'timelapse':
+    logger.info("recording timelapse")
+    # TODO: add frame to ~/stopmotion, when leaving stopmotion make video and clean up dir
   else:
     pass_func()
 
