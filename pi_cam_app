@@ -324,7 +324,7 @@ def handle_record_video_request(filename):
 
 def handle_record_timelapse_request(filename):
   os.system('mkdir -p {0}'.format(TIMELAPSE_DIR))
-  filepath = "{0}{1}.{2}".format(TIMELAPSE_DIR, filename, video_format)
+  filepath = "{0}{1}.{2}".format(TIMELAPSE_DIR, filename, capture_format)
   try:
     timelapse(filepath)
     message = "{0} written successfully!".format(filepath)
@@ -336,7 +336,7 @@ def handle_record_timelapse_request(filename):
 
 # def handle_stopmotion_request(filename):
 #   os.system('mkdir -p {0}'.format(STOPMOTION_DIR))
-#   filepath = "{0}{1}.{2}".format(STOPMOTION_DIR, filename, video_format)
+#   filepath = "{0}{1}.{2}".format(STOPMOTION_DIR, filename, capture_format)
 #   try:
 #     stopmotion(filepath)
 #     message = "{0} written successfully!".format(filepath)
@@ -366,7 +366,7 @@ def timelapse(filepath):
   if timelapse_started:
     timelapse_started = False
     filepath = original_base_filepath
-    os.system("convert -delay {0} -loop 0 {1}*.jpg {1}.gif && mv {1}.gif {2} && rm -f {3}*".format(tl_playback_in_hundreth_s_list, original_base_filepath, VIDEO_DIR, TIMELAPSE_DIR))
+    os.system("convert -delay {0} -loop 0 image*.{1} {2}.gif && mv {2}.gif {3} && rm -f {4}*".format(tl_playback_in_hundreth_s_list, capture_format, original_base_filepath, VIDEO_DIR, TIMELAPSE_DIR))
   else:
     timelapse_started = True
     original_base_filepath = filepath 
@@ -374,7 +374,7 @@ def timelapse(filepath):
 
 def timelapse_loop(filepath):
   logger.info("Thread \'timelapse\': starting")
-  for filename in camera.capture_continuous("{0}{counter:05d}.{1}".format(filepath, capture_format)):
+  for filename in camera.capture_continuous("image{counter:05d}.{0}".format(capture_format), format=capture_format):
     logger.info("Captured {0}".format(filename))
     for i in range(0, tl_photo_intvl_in_seconds_list):
       if not timelapse_started:
