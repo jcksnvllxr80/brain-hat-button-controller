@@ -10,7 +10,7 @@ camera:
   meter_mode: average
   horizontal_flip: False
   vertical_flip: False
-  tl_photo_intvl_in_seconds: 300
+  tl_photo_intvl_in_seconds: 5
   tl_playback_in_hundreth_s: 4
   iso: 0  # zero is auto
   rotation: 0
