@@ -119,7 +119,7 @@ def photo():
     # TODO: add frame to ~/stopmotion, when leaving stopmotion make video and clean up dir
   elif camera_func == 'timelapse':
     logger.info("recording timelapse")
-    # TODO: add frame to ~/stopmotion, when leaving stopmotion make video and clean up dir
+    make_get_api_call("http://127.0.0.1:{0}/record_timelapse/{1}_timelapse".format(pi_cam_app_settings['port'], create_new_unique_filename()))
   else:
     pass_func()
 
