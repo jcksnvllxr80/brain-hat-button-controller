@@ -375,7 +375,7 @@ def timelapse(filepath):
 def timelapse_loop(filepath):
   logger.info("Thread \'timelapse\': starting")
   i = 1
-  while True
+  while True:
     filename = "{0}{1:05d}.{2}".format(filepath, i, capture_format)
     camera.capture(filename, format=capture_format):
     logger.info("Captured {0}".format(filename))
