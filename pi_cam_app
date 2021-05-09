@@ -370,7 +370,7 @@ def timelapse(filepath):
   else:
     timelapse_started = True
     original_base_filepath = filepath 
-    Thread(target=timelapse_loop, args=(str(original_base_filepath))).start()
+    Thread(target=timelapse_loop(original_base_filepath)).start()
 
 def timelapse_loop(filepath):
   logger.info("Thread \'timelapse\': starting")
