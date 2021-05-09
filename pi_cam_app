@@ -324,6 +324,7 @@ def handle_record_video_request(filename):
 
 def handle_record_timelapse_request(filename):
   os.system('mkdir -p {0}'.format(TIMELAPSE_DIR))
+  os.system('chmod 777 {0}'.format(TIMELAPSE_DIR))
   filepath = "{0}{1}.{2}".format(TIMELAPSE_DIR, filename, capture_format)
   try:
     timelapse(filepath)
