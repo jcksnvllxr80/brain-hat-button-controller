@@ -311,7 +311,7 @@ def record(filepath):
   else:
     action = "Starting"
     camera.start_recording(filepath, format=video_format)
-  logging.info("{0} video recording.".format())
+  logging.info("{0} video recording.".format(action))
   Thread(target=set_image_text, args=('set_image_text', 3, 'Video', action, True)).start()
 
 def set_resolution(x, y, fps=None):
