@@ -324,15 +324,14 @@ def handle_record_video_request(filename):
 
 def handle_record_timelapse_request(filename):
   os.system('mkdir -p {0}'.format(TIMELAPSE_DIR))
-  os.system('chmod 777 {0}'.format(TIMELAPSE_DIR))
-  filepath = "{0}{1}.{2}".format(TIMELAPSE_DIR, filename, capture_format)
+  filepath = "{0}{1}".format(TIMELAPSE_DIR, filename)
   try:
     timelapse(filepath)
-    message = "{0} written successfully!".format(filepath)
+    message = "{0} timelapse created successfully!".format(filepath)
   except:
     exc_type, exc_value, exc_tb = sys.exc_info()
     exception_handler(exc_type, exc_value, exc_tb)
-    message = "{0} not successfully written!".format(filepath)
+    message = "{0} timelapse created not successfully written!".format(filepath)
   return message
 
 # def handle_stopmotion_request(filename):
@@ -375,7 +374,7 @@ def timelapse(filepath):
 
 def timelapse_loop(filepath):
   logger.info("Thread \'timelapse\': starting")
-  for filename in camera.capture_continuous('image{counter:05d}.jpg', format=capture_format):
+  for filename in camera.capture_continuous('image{counter:05d}.jpg'):
     logger.info("Captured {0}".format(filename))
     for i in range(0, tl_photo_intvl_in_seconds_list):
       if not timelapse_started:
