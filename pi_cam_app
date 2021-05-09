@@ -23,7 +23,7 @@ from flask import request, jsonify, Flask # package for the webapp
 
 camera = PiCamera()
 app = Flask(__name__)
-menu_items = ['photo_effect' , 'resolution', 'awb_mode', 'exposure_mode', 'capture_format', 'annotate_background', 
+menu_items = ['photo_effect' , 'resolution', 'awb_mode', 'exposure_mode', 'capture_format', 'video_format', 'annotate_background', 
   'speaker_volume', 'meter_mode', 'horizontal_flip', 'vertical_flip', 'iso', 'rotation', 'saturation', 'sharpness', 
   'shutter_speed', 'video_denoise', 'video_stabilization', 'zoom_speech', 'menu_speech', 'value_speech']
 photo_effects = [ 'none', 'negative', 'solarize', 'sketch', 'denoise', 'emboss', 'oilpaint', 'hatch', 'gpen', 'pastel', 
@@ -34,6 +34,7 @@ awb_modes = ['off', 'auto', 'sunlight', 'cloudy', 'shade', 'tungsten', 'fluoresc
 exposure_modes = ['off', 'auto', 'night', 'nightpreview', 'backlight', 'spotlight', 'sports', 'snow', 'beach', 
   'verylong', 'fixedfps', 'antishake', 'fireworks']
 capture_formats = ['jpeg', 'png', 'gif', 'bmp', 'yuv', 'rgb', 'rgba', 'bgr', 'bgra', 'raw']
+video_formats = ['h264', 'mjpeg', 'yuv', 'rgb', 'rgba', 'bgr', 'bgra']
 annotate_background_colors = ['aliceblue', 'antiquewhite', 'aqua', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige',
   'bisque', 'black', 'blanchedalmond', 'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate',
   'coral', 'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgreen',
@@ -100,6 +101,7 @@ def setup():
     'awb_mode': awb_modes,
     'exposure_mode': exposure_modes,
     'capture_format': capture_formats,
+    'video_format': video_formats,
     'annotate_background': annotate_background_colors,
     'speaker_volume': speaker_volumes,
     'meter_mode': meter_modes,
@@ -122,6 +124,7 @@ def setup():
     'awb_mode': set_awb_mode,
     'exposure_mode': set_exposure_mode,
     'capture_format': set_capture_format,
+    'video_format': set_video_format,
     'annotate_background': set_annotate_background,
     'speaker_volume': set_speaker_volume,
     'meter_mode': set_meter_mode,
@@ -148,6 +151,7 @@ def setup():
     'awb_mode': camera_settings['awb_mode'],
     'exposure_mode': camera_settings['exposure_mode'],
     'capture_format': camera_settings['capture_format'],
+    'video_format': camera_settings['video_format'],
     'annotate_background': camera_settings['annotate_background'],
     'speaker_volume': camera_settings['speaker_volume'],
     'meter_mode': camera_settings['meter_mode'],
@@ -207,6 +211,12 @@ def is_previewing_request():
 @app.route('/take_photo/<filename>', methods=['GET'])
 def take_photo_request(filename):
   message = handle_take_photo_request(filename)
+  logger.info(message)
+  return message
+
+@app.route('/record_video/<filename>', methods=['GET'])
+def record_video_request(filename):
+  message = handle_record_video_request(filename)
   logger.info(message)
   return message
 
@@ -278,9 +288,31 @@ def handle_take_photo_request(filename):
     exception_handler(exc_type, exc_value, exc_tb)
     message = "{0} not successfully written!".format(filepath)
   return message
+  
+def handle_record_video_request(filename):
+  filepath = "{0}{1}.{2}".format(VIDEO_DIR, filename, video_format)
+  try:
+    record(filepath)
+    message = "{0} written successfully!".format(filepath)
+  except:
+    exc_type, exc_value, exc_tb = sys.exc_info()
+    exception_handler(exc_type, exc_value, exc_tb)
+    message = "{0} not successfully written!".format(filepath)
+  return message
 
 def shoot(filepath):
   camera.capture(filepath, format=capture_format)
+
+def record(filepath):
+  action = None
+  if camera.recording:
+    camera.stop_recording()
+    action = "Stopping"
+  else:
+    action = "Starting"
+    camera.start_recording(filepath, format=video_format)
+  logging.info("{0} video recording.".format())
+  Thread(target=set_image_text, args=('set_image_text', 3, 'Video', action, True)).start()
 
 def set_resolution(x, y, fps=None):
   camera.resolution = (x, y)
@@ -408,6 +440,12 @@ def set_capture_format(format):
   capture_format = format
   logger.info("Set capture format to \'{0}\'".format(format))
   return 'Capture Format'
+
+def set_video_format(format):
+  global video_format
+  video_format = format
+  logger.info("Set video format to \'{0}\'".format(format))
+  return 'Video Format'
 
 def set_annotate_background(color):
   camera.annotate_background = Color(color)
