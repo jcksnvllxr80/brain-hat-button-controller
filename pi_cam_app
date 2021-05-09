@@ -84,6 +84,7 @@ APP_DIR = HOME_DIR + "brain-hat-button-controller/"
 CONFIG_FILE = APP_DIR + "conf/application.yaml"
 pi_cam_app_settings = {}
 current_menu_item = menu_items[0]
+timelapse_started = 0
 
 def init_logging():
   logging_logger = logging.getLogger(__name__)
