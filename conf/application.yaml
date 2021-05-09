@@ -2,6 +2,7 @@ camera:
   annotate_background: green
   awb_mode: auto
   capture_format: png
+  video_format: h264
   exposure_mode: auto
   photo_effect: solarize
   resolution: (1332, 990)
