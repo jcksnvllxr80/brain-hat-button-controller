@@ -374,7 +374,7 @@ def timelapse(filepath):
 
 def timelapse_loop(filepath):
   logger.info("Thread \'timelapse\': starting")
-  for filename in camera.capture_continuous("image{counter:05d}.{0}".format(capture_format), format=capture_format):
+  for filename in camera.capture_continuous('image{counter:05d}.jpg', format=capture_format):
     logger.info("Captured {0}".format(filename))
     for i in range(0, tl_photo_intvl_in_seconds_list):
       if not timelapse_started:
