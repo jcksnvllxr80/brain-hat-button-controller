@@ -382,7 +382,6 @@ def timelapse_loop(filepath):
     camera.capture(filename, format=capture_format)
     logger.info("Captured {0}".format(filename))
     for j in range(0, current_menu_values['tl_photo_intvl_in_seconds']):
-      global timelapse_started
       if not timelapse_started:
         break
       else:
