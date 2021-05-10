@@ -103,6 +103,7 @@ def setup():
   global menu_functions
   global pi_cam_app_settings
   global zoom_index
+  global timelapse_started
   zoom_index = 0
   timelapse_started = False
   menu_items_dict = {
