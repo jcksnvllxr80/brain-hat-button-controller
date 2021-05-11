@@ -116,12 +116,16 @@ def photo():
     make_get_api_call("http://127.0.0.1:{0}/record_video/{1}_vid".format(pi_cam_app_settings['port'], create_new_unique_filename()))
   elif camera_func == 'stopmotion':
     logger.info("Adding stopmotion frame")
-    # TODO: add frame to ~/stopmotion, when leaving stopmotion make video and clean up dir
+    make_get_api_call("http://127.0.0.1:{0}/stopmotion/add_frame".format(pi_cam_app_settings['port']))
   elif camera_func == 'timelapse':
     logger.info("recording timelapse")
     make_get_api_call("http://127.0.0.1:{0}/record_timelapse/{1}_timelapse".format(pi_cam_app_settings['port'], create_new_unique_filename()))
   else:
     pass_func()
+
+def end_stopmotion_scene():
+  logger.info("Ending stopmotion scene")
+  make_get_api_call("http://127.0.0.1:{0}/stopmotion/end/{1}_stopmotion".format(pi_cam_app_settings['port'], create_new_unique_filename()))
 
 def create_new_unique_filename():
   return "{0}".format(datetime.now().strftime("%Y%m%d_%H%M%S"))
@@ -213,7 +217,7 @@ def joystick_right_handler(was_long_press):
     short_or_long_press_func(was_long_press, pass_func, pass_func)
 
 def joystick_select_handler(was_long_press):
-  short_or_long_press_func(was_long_press, pass_func, reboot)
+  short_or_long_press_func(was_long_press, select_func, reboot)
 
 def button_handler(was_long_press):
   if mode == 'camera':
@@ -291,6 +295,14 @@ def shutdown():
 
 def pass_func():
   logger.warning("This function has not been implemented for mode: \'{0}\',  camera function: \'{1}\'".format(mode, camera_func))
+
+def select_func():
+  if camera_func:
+    camera_funcs_with_select_feature = {
+        'stopmotion': end_stopmotion_scene,
+    }
+    camera_funcs_with_select_feature.get(camera_func, pass_func)()
+
 
 if __name__ == '__main__':
   global logger

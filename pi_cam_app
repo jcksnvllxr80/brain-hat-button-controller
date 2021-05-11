@@ -31,7 +31,7 @@ app = Flask(__name__)
 menu_items = ['photo_effect' , 'resolution', 'awb_mode', 'exposure_mode', 'capture_format', 'video_format', 'annotate_background', 
   'speaker_volume', 'meter_mode', 'horizontal_flip', 'vertical_flip', 'iso', 'rotation', 'saturation', 'sharpness', 
   'shutter_speed', 'video_denoise', 'video_stabilization', 'zoom_speech', 'menu_speech', 'value_speech', 'tl_photo_intvl_in_seconds',
-  'tl_playback_in_hundreth_s']
+  'tl_playback_in_hundreth_s', 'sm_playback_in_hundreth_s']
 photo_effects = [ 'none', 'negative', 'solarize', 'sketch', 'denoise', 'emboss', 'oilpaint', 'hatch', 'gpen', 'pastel', 
   'watercolor', 'film', 'blur', 'saturation', 'colorswap', 'washedout', 'posterise', 'colorpoint', 
   'colorbalance', 'cartoon', 'deinterlace1', 'deinterlace2' ]
@@ -59,6 +59,7 @@ annotate_background_colors = ['aliceblue', 'antiquewhite', 'aqua', 'antiquewhite
   'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen']
 tl_photo_intvl_in_seconds_list = [5, 15, 30, 60, 120, 300, 900, 1800, 3600]
 tl_playback_in_hundreth_s_list = [2, 4, 10, 20, 50, 100]
+sm_playback_in_hundreth_s_list = [2, 4, 10, 20, 50, 100]
 speaker_volumes = [0, 20, 40, 60, 80, 100]  # vol = x/4 + 75
 meter_modes = ['average', 'spot', 'backlit', 'matrix']
 horizontal_flip_options = [True, False]
@@ -84,6 +85,7 @@ APP_DIR = HOME_DIR + "brain-hat-button-controller/"
 CONFIG_FILE = APP_DIR + "conf/application.yaml"
 pi_cam_app_settings = {}
 current_menu_item = menu_items[0]
+stopmotion_frame = 0
 
 def init_logging():
   logging_logger = logging.getLogger(__name__)
@@ -115,6 +117,7 @@ def setup():
     'video_format': video_formats,
     'tl_photo_intvl_in_seconds': tl_photo_intvl_in_seconds_list,
     'tl_playback_in_hundreth_s': tl_playback_in_hundreth_s_list,
+    'sm_playback_in_hundreth_s': sm_playback_in_hundreth_s_list,
     'annotate_background': annotate_background_colors,
     'speaker_volume': speaker_volumes,
     'meter_mode': meter_modes,
@@ -140,6 +143,7 @@ def setup():
     'video_format': set_video_format,
     'tl_photo_intvl_in_seconds': set_tl_photo_intvl_in_seconds,
     'tl_playback_in_hundreth_s': set_tl_playback_in_hundreth_s,
+    'sm_playback_in_hundreth_s': set_sm_playback_in_hundreth_s,
     'annotate_background': set_annotate_background,
     'speaker_volume': set_speaker_volume,
     'meter_mode': set_meter_mode,
@@ -169,6 +173,7 @@ def setup():
     'video_format': camera_settings['video_format'],
     'tl_photo_intvl_in_seconds': camera_settings['tl_photo_intvl_in_seconds'],
     'tl_playback_in_hundreth_s': camera_settings['tl_playback_in_hundreth_s'],
+    'sm_playback_in_hundreth_s': camera_settings['sm_playback_in_hundreth_s'],
     'annotate_background': camera_settings['annotate_background'],
     'speaker_volume': camera_settings['speaker_volume'],
     'meter_mode': camera_settings['meter_mode'],
@@ -240,6 +245,18 @@ def record_video_request(filename):
 @app.route('/record_timelapse/<filename>', methods=['GET'])
 def record_timelapse_request(filename):
   message = handle_record_timelapse_request(filename)
+  logger.info(message)
+  return message
+
+@app.route('/stopmotion/add_frame', methods=['GET'])
+def stopmotion_add_frame_request():
+  message = handle_stopmotion_add_frame_request()
+  logger.info(message)
+  return message
+
+@app.route('/stopmotion/end/<filename>', methods=['GET'])
+def end_stopmotion_request(filename):
+  message = handle_end_stopmotion_request(filename)
   logger.info(message)
   return message
 
@@ -335,17 +352,24 @@ def handle_record_timelapse_request(filename):
     message = "{0} not successfully written!".format(filepath)
   return message
 
-# def handle_stopmotion_request(filename):
-#   os.system('mkdir -p {0}'.format(STOPMOTION_DIR))
-#   filepath = "{0}{1}.{2}".format(STOPMOTION_DIR, filename, capture_format)
-#   try:
-#     stopmotion(filepath)
-#     message = "{0} written successfully!".format(filepath)
-#   except:
-#     exc_type, exc_value, exc_tb = sys.exc_info()
-#     exception_handler(exc_type, exc_value, exc_tb)
-#     message = "{0} not successfully written!".format(filepath)
-#   return message
+def handle_stopmotion_add_frame_request():
+  os.system('mkdir -p {0}'.format(STOPMOTION_DIR))
+  filename = ''
+  try:
+    filename = stopmotion()
+    message = "{0} written successfully!".format(filename)
+  except:
+    exc_type, exc_value, exc_tb = sys.exc_info()
+    exception_handler(exc_type, exc_value, exc_tb)
+    message = "{0} not successfully written!".format(filename)
+  return message
+
+def handle_end_stopmotion_request(filename):
+  global stopmotion_frame
+  stopmotion_frame = 0
+  logger.info("Attempting to convert stopmotion images into movie using \'convert\'")
+  os.system("convert -delay {0} -loop 0 {2}*.{1} {2}.gif && mv {2}.gif {3} && rm -f {4}*".format(current_menu_values['sm_playback_in_hundreth_s'], capture_format, filename, VIDEO_DIR, STOPMOTION_DIR))
+  return filename
 
 def shoot(filepath):
   camera.capture(filepath, format=capture_format)
@@ -391,8 +415,13 @@ def timelapse_loop(filepath):
     i += 1
   logger.info("Thread \'timelapse\': finishing")
 
-def stopmotion(filepath):
-  pass
+def stopmotion():
+  global stopmotion_frame
+  stopmotion_frame += 1
+  filename = "{0}frame_{1:05d}.{2}".format(STOPMOTION_DIR, stopmotion_frame, capture_format)
+  camera.capture(filename, format=capture_format)
+  logger.info("Captured stopmotion image: {0}".format(filename))
+  return filename
 
 def set_resolution(x, y, fps=None):
   camera.resolution = (x, y)
@@ -616,6 +645,11 @@ def set_tl_playback_in_hundreth_s(tl_playback_in_hundreth_s):
   current_menu_values['tl_playback_in_hundreth_s'] = tl_playback_in_hundreth_s
   logger.info("Set timelapse playback interval (in hundreths of a second) to \'{0}\'".format(tl_playback_in_hundreth_s))
   return 'Timelapse Playback Interval (in hundreths of a second)'
+
+def set_sm_playback_in_hundreth_s(sm_playback_in_hundreth_s):
+  current_menu_values['sm_playback_in_hundreth_s'] = sm_playback_in_hundreth_s
+  logger.info("Set stopmotion playback interval (in hundreths of a second) to \'{0}\'".format(sm_playback_in_hundreth_s))
+  return 'Stopmotion Playback Interval (in hundreths of a second)'
 
 def set_image_text(thread_name, wait_seconds, display_str, value_name, speak=None):
   logger.info("Thread \'{0}\': starting".format(thread_name))
