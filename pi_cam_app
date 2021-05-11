@@ -368,7 +368,7 @@ def handle_end_stopmotion_request(filename):
   global stopmotion_frame
   stopmotion_frame = 0
   logger.info("Attempting to convert stopmotion images into movie using \'convert\'")
-  os.system("ffmpeg -r {0} -i {1}frame_%03d.{2} -qscale 2 {3}{4}.mp4".format(current_menu_values['stopmotion_playback_fps'], STOPMOTION_DIR, capture_format, VIDEO_DIR, filename))
+  os.system("ffmpeg -r {0} -i {1}frame_%03d.{2} -qscale 2 {3}{4}.mp4 && rm -f {1}*".format(current_menu_values['stopmotion_playback_fps'], STOPMOTION_DIR, capture_format, VIDEO_DIR, filename))
   return filename
 
 def shoot(filepath):
