@@ -1,0 +1,6 @@
+other ideas:
+1. start a recording to memory and use ffmpeg linux command to open it and stream it with ncat to the network to avoid having to deal with python and sockets staying alive
+  https://ostechnix.com/20-ffmpeg-commands-beginners/
+
+  use splitter_port in start_recoprding and stop_recording as mentioned here... default splitter port is 1 so no need to mention it for recording normal files.
+    https://picamera.readthedocs.io/en/release-1.10/api_camera.html
