@@ -26,3 +26,9 @@ camera:
 pi_cam_app:
   ip: 0.0.0.0
   port: 8099
+stream:
+  port: 9090
+  width: 1920
+  height: 1080
+  fps: 24
+  bits: 1000000

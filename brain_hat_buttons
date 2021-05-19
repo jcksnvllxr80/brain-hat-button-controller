@@ -21,6 +21,8 @@ HOME_DIR = '/home/pi/brain-hat-button-controller/'
 mode = 'default'
 camera_func = 'none'
 camera_funcs = ['menu', 'capture', 'video', 'stopmotion', 'timelapse']
+default_func = 'none'
+default_funcs = ['none', 'preview_stream']
 buttons = [BUTTON_PIN, JOYUP_PIN, JOYDOWN_PIN,
            JOYLEFT_PIN, JOYRIGHT_PIN, JOYSELECT_PIN]
 for i,pin in enumerate(buttons):
@@ -29,6 +31,7 @@ for i,pin in enumerate(buttons):
   buttons[i].pull = Pull.UP
 button, joyup, joydown, joyleft, joyright, joyselect = buttons
 tf_obj_recognition_pid_str = "ps aux | grep -ivE \"(grep|venv)\" | grep pitft_labeled_output.py | awk \'{print $2}\'"
+stream_preview_pid_str = "ps aux | grep -ivE \"(grep)\" | grep ncat | awk \'{print $2}\'"
 HOME_DIR = "/home/pi/brain-hat-button-controller/"
 CONFIG_FILE = HOME_DIR + "conf/application.yaml"
 pi_cam_app_settings = {}
@@ -51,6 +54,7 @@ def config():
   config_file = read_config_file()
   # read config dict's into more specific variables
   pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].items()}
+  stream_settings = {k: v for k, v in config_file['stream'].items()}
 
 def read_config_file():
   # read config yaml file into dictionaries
@@ -71,6 +75,11 @@ def change_camera_func(new_camera_func='capture'):
   camera_func = new_camera_func
   logger.info("Camera function changed to {0}".format(camera_func))
 
+def change_default_func(new_default_func='none'):
+  global default_func
+  default_func = new_default_func
+  logger.info("Default function changed to {0}".format(default_func))
+
 def start_tf_obj_recognition():
   # NOTE: in order to get the speaker to work on the brainCraft hat, the following line
   # pipes the detected text into sudo festival in line 150 of the link below.
@@ -84,18 +93,6 @@ def start_tf_obj_recognition():
     change_mode()
   os.environ["DISPLAY"] = ":0"
   subprocess.Popen("{0}tf_obj_recognition".format(HOME_DIR))
-
-def video_recorder():
-  # change_mode('video')
-  # TODO: record movie (might need a new script for this that is very similar to pi_cam_app)
-  # if already recording a video, then stop, else start recording
-  pass
-
-def stopmotion_animation():
-  # change_mode('stopmotion')
-  # TODO: make stop motion animation (might need a new script for this that is very similar to pi_cam_app)
-  # if already making stopmotion animation, then stop, else start stopmotion animation
-  pass
 
 def pi_cam_preview(action):
   make_get_api_call("http://127.0.0.1:{0}/pi_cam_preview/{1}".format(pi_cam_app_settings['port'], action))
@@ -186,6 +183,27 @@ def next_cam_function(dir):
       next_cam_func = camera_funcs[current_cam_func_ind + 1]
   change_camera_func(next_cam_func)
   make_get_api_call("http://127.0.0.1:{0}/display_and_speak/Function/{1}".format(pi_cam_app_settings['port'], next_cam_func))
+
+def left_default_func():
+  next_default_function('left')
+
+def right_default_func():
+  next_default_function('right')
+
+def next_default_function(dir):
+  current_default_func_ind = default_funcs.index(default_func)
+  if dir == 'left':
+    if current_default_func_ind == 0:
+      next_default_func = default_funcs[len(default_funcs) - 1]
+    else:
+      next_default_func = default_funcs[current_default_func_ind - 1]
+  else:
+    if current_default_func_ind == len(default_funcs) - 1:
+      next_default_func = default_funcs[0]
+    else:
+      next_default_func = default_funcs[current_default_func_ind + 1]
+  change_default_func(next_default_func)
+  execute_default_func(next_default_func)
 
 def make_get_api_call(api_call_str):
   logger.info("Making a GET call to \'{0}\'".format(api_call_str))
@@ -303,6 +321,20 @@ def select_func():
     }
     camera_funcs_with_select_feature.get(camera_func, pass_func)()
 
+def start_preview_stream():
+  os.system("raspivid -n -ih -t 0 -rot 0 -w {0} -h {1} -fps {2} -b {3} -o - | ncat -lkv4 {4} &".format(
+    stream_settings['width'], stream_settings['height'], stream_settings['fps'], stream_settings['bits'], stream_settings['port']))
+
+def stop_preview_stream():
+  pid = get_pid(stream_preview_pid_str)
+  if pid:
+    kill_pid(pid)
+
+def execute_default_func(func):
+  stop_preview_stream()
+  if func == 'preview_stream':
+    pi_cam_preview('stop')
+    start_preview_stream()
 
 if __name__ == '__main__':
   global logger
