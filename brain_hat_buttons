@@ -226,13 +226,13 @@ def joystick_left_handler(was_long_press):
   if mode == 'camera':
     short_or_long_press_func(was_long_press, left_value, left_cam_func)
   else:
-    short_or_long_press_func(was_long_press, pass_func, pass_func)
+    short_or_long_press_func(was_long_press, pass_func, left_default_func)
 
 def joystick_right_handler(was_long_press):
   if mode == 'camera':
     short_or_long_press_func(was_long_press, right_value, right_cam_func)
   else:
-    short_or_long_press_func(was_long_press, pass_func, pass_func)
+    short_or_long_press_func(was_long_press, pass_func, right_default_func)
 
 def joystick_select_handler(was_long_press):
   short_or_long_press_func(was_long_press, select_func, reboot)
