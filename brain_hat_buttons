@@ -35,6 +35,7 @@ stream_preview_pid_str = "ps aux | grep -ivE \"(grep)\" | grep ncat | awk \'{pri
 HOME_DIR = "/home/pi/brain-hat-button-controller/"
 CONFIG_FILE = HOME_DIR + "conf/application.yaml"
 pi_cam_app_settings = {}
+stream_settings = {}
 subprocess.Popen(HOME_DIR + "pi_cam_app")
 
 def init_logging():
@@ -51,6 +52,7 @@ def init_logging():
 
 def config():
   global pi_cam_app_settings
+  global stream_settings
   config_file = read_config_file()
   # read config dict's into more specific variables
   pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].items()}
