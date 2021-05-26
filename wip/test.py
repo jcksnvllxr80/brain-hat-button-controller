@@ -23,7 +23,7 @@ def stream_video_to_memory(cam):
 
 camera = picamera.PiCamera()
 # camera.resolution = (4056, 3040)
-camera.resolution = (4056, 3040)
+camera.resolution = (2028, 1520)
 camera.framerate = 24
 # Thread(target=stream_video_network, args=(camera,)).start()
 Thread(target=stream_video_to_memory, args=(camera,)).start()
@@ -46,3 +46,25 @@ server_socket.bind(('0.0.0.0', 9090))
 server_socket.listen(0)
 connection = server_socket.accept()[0].makefile('wb')
 camera.start_recording(connection, format='h264', resize=(640, 480), splitter_port=0)
+
+
+########## this isnt sending video to the phone but i swore it would
+import io
+import picamera
+import socket
+import subprocess
+stream = io.BytesIO()
+with picamera.PiCamera() as camera:
+    camera.resolution = (640, 480)
+    camera.start_recording(stream, format='h264', quality=23)
+    # Run a viewer with an appropriate command line. Uncomment the mplayer
+    # version if you would prefer to use mplayer instead of VLC
+    cmdline = ['ffmpeg', '-i', '-', '-crf', '30', '-preset', 'ultrafast', '-b:a', '96k', '-vcodec', 'libx264', '-r', '25', '-b:v', '500k', '|', 'ncat', '-l', '-k', '-v', '4', '9090']
+    player = subprocess.Popen(cmdline, stdin=subprocess.PIPE)
+    while True:
+        # Repeatedly read 1k of data from the connection and write it to
+        # the media player's stdin
+        data = stream.read(1024)
+        if not data:
+            break
+        player.stdin.write(data)
