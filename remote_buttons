@@ -9,7 +9,7 @@ from flask_cors import CORS
 from flask import jsonify, Flask # package for the webapp
 
 app = Flask(__name__)
-camera_buttons = CameraButtons
+camera_buttons = CameraButtons.CameraButtons()
 remote_buttons_settings = {}
 HOME_DIR = "/home/pi/brain-hat-button-controller/"
 CONFIG_FILE = HOME_DIR + "conf/remote_buttons.yaml"
