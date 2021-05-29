@@ -53,6 +53,7 @@ def hello():
 
 @app.route('/button_press/<button>/<duration>', methods=['GET'])
 def short_press(button, duration):
+  logger.debug("Got request for button_press function with button: {0}, duration: {1}.".format(button, duration))
   return handle_button_press(button, duration)
 
 @app.route('/help', methods=['GET'])
@@ -68,38 +69,42 @@ def page_not_found(e):
 
 def handle_button_press(bttn, press_type):
   if bttn == "photo":
-    handle_photo_press(was_long_press(press_type))
-  if bttn == "up":
-    handle_up_press(was_long_press(press_type))
-  if bttn == "down":
-    handle_down_press(was_long_press(press_type))
-  if bttn == "left":
-    handle_left_press(was_long_press(press_type))
-  if bttn == "right":
-    handle_right_press(was_long_press(press_type))
-  if bttn == "select":
-    handle_select_press(was_long_press(press_type))
+    message = handle_photo_press(was_long_press(press_type))
+  elif bttn == "up":
+    message = handle_up_press(was_long_press(press_type))
+  elif bttn == "down":
+    message = handle_down_press(was_long_press(press_type))
+  elif bttn == "left":
+    message = handle_left_press(was_long_press(press_type))
+  elif bttn == "right":
+    message = handle_right_press(was_long_press(press_type))
+  elif bttn == "select":
+    message = handle_select_press(was_long_press(press_type))
+  else:
+    message = "No button named {0}".format(bttn)
+    logger.warn(message)
+  return message
 
 def handle_photo_press(long_press):
-  camera_buttons.photo_handler(long_press)
+  return camera_buttons.photo_handler(long_press)
 
 def handle_up_press(long_press):
-  camera_buttons.up_handler(long_press)
+  return camera_buttons.up_handler(long_press)
 
 def handle_down_press(long_press):
-  camera_buttons.down_handler(long_press)
+  return camera_buttons.down_handler(long_press)
 
 def handle_left_press(long_press):
-  camera_buttons.left_handler(long_press)
+  return camera_buttons.left_handler(long_press)
 
 def handle_right_press(long_press):
-  camera_buttons.right_handler(long_press)
+  return camera_buttons.right_handler(long_press)
 
 def handle_select_press(long_press):
-  camera_buttons.select_handler(long_press)
+  return camera_buttons.select_handler(long_press)
 
 def was_long_press(press_length):
-  if press_length is "long":
+  if press_length == "long":
     logger.debug("Received longpress")
     return True
   else:
