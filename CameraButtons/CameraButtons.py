@@ -1,3 +1,6 @@
+# TODO: maybe write some code for adding gui buttons on the touchscreen 
+# using python guizero or maybe a go implementation
+
 import yaml
 import requests
 import subprocess
