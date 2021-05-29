@@ -1,0 +1,115 @@
+#!/usr/bin/python
+
+import time
+import yaml
+import CameraButtons
+import logging
+from datetime import datetime
+from flask_cors import CORS
+from flask import jsonify, Flask # package for the webapp
+
+app = Flask(__name__)
+camera_buttons = CameraButtons.CameraButtons()
+remote_buttons_settings = {}
+HOME_DIR = "/home/pi/brain-hat-button-controller/"
+CONFIG_FILE = HOME_DIR + "conf/remote_buttons.yaml"
+
+def init_logging():
+  logging_logger = logging.getLogger(__name__)
+  logging_logger.setLevel(logging.DEBUG)
+  logging_logger.propagate = False
+  # create console handler and set level to info
+  handler = logging.StreamHandler()
+  handler.setLevel(logging.DEBUG)
+  formatter = logging.Formatter("%(asctime)s [remote_buttons] [%(levelname)-5.5s]  %(message)s")
+  handler.setFormatter(formatter)
+  logging_logger.addHandler(handler)
+  return logging_logger
+
+def init_web_app():
+  web_app_ip = remote_buttons_settings['ip']
+  web_app_port = remote_buttons_settings['port']
+  CORS(app)
+  app.config["DEBUG"] = True
+  logger.info("Starting remote_buttons on ip:port --> " + web_app_ip + ':' + str(web_app_port))
+  app.run(host=web_app_ip, port=int(web_app_port), use_reloader=False)
+
+def config():
+  global remote_buttons_settings
+  config_file = read_config_file()
+  # read config dict's into more specific variables
+  remote_buttons_settings = {k: v for k, v in config_file['buttons'].items()}
+
+def read_config_file():
+  # read config yaml file into dictionaries
+  config_file = None
+  with open(CONFIG_FILE, 'r') as ymlfile:
+    config_file = yaml.full_load(ymlfile)
+  return config_file
+
+@app.route('/')
+def hello():
+  return 'Hello, from remote_buttons!'
+
+@app.route('/button_press/<button>/<duration>', methods=['GET'])
+def short_press(button, duration):
+  return handle_button_press(button, duration)
+
+@app.route('/help', methods=['GET'])
+def help_request():
+  message = "This is the help message."
+  logger.info(message)
+  return jsonify(display_message=message)
+
+@app.errorhandler(404)
+def page_not_found(e):
+  logger.error("404: The resource could not be found.")
+  return jsonify(display_message="Error.")
+
+def handle_button_press(bttn, press_type):
+  if bttn == "photo":
+    handle_photo_press(was_long_press(press_type))
+  if bttn == "up":
+    handle_up_press(was_long_press(press_type))
+  if bttn == "down":
+    handle_down_press(was_long_press(press_type))
+  if bttn == "left":
+    handle_left_press(was_long_press(press_type))
+  if bttn == "right":
+    handle_right_press(was_long_press(press_type))
+  if bttn == "select":
+    handle_select_press(was_long_press(press_type))
+
+def handle_photo_press(long_press):
+  camera_buttons.photo_handler(long_press)
+
+def handle_up_press(long_press):
+  camera_buttons.up_handler(long_press)
+
+def handle_down_press(long_press):
+  camera_buttons.down_handler(long_press)
+
+def handle_left_press(long_press):
+  camera_buttons.left_handler(long_press)
+
+def handle_right_press(long_press):
+  camera_buttons.right_handler(long_press)
+
+def handle_select_press(long_press):
+  camera_buttons.select_handler(long_press)
+
+def was_long_press(press_length):
+  if press_length is "long":
+    logger.debug("Received longpress")
+    return True
+  else:
+    logger.debug("Did NOT receive longpress")
+    return False
+
+if __name__ == '__main__':
+  global logger
+  logger = init_logging()
+  config()
+  init_web_app()
+  while True:
+    time.sleep(0.01)
