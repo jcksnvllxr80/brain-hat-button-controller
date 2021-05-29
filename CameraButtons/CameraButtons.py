@@ -1,5 +1,6 @@
 # TODO: maybe write some code for adding gui buttons on the touchscreen 
-# using python guizero or maybe a go implementation
+# using python guizero or maybe a go implementation 
+# https://projects.raspberrypi.org/en/projects/getting-started-with-guis/14
 
 import yaml
 import requests
