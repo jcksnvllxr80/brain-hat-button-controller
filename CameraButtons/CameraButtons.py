@@ -114,13 +114,14 @@ class CameraButtons(object):
     else:
       self.short_or_long_press_func(was_long_press, self.pass_func, self.obj_recognition)
 
-def short_or_long_press_func(was_long_press, short_func, long_func):
-  if was_long_press:
-    logger.debug("Running long function, {0}".format(long_func))
-    long_func()
-  else:
-    logger.debug("Running short function, {0}".format(short_func))
-    short_func()
+  @staticmethod
+  def short_or_long_press_func(was_long_press, short_func, long_func):
+    if was_long_press:
+      logger.debug("Running long function, {0}".format(long_func))
+      long_func()
+    else:
+      logger.debug("Running short function, {0}".format(short_func))
+      short_func()
 
   def photo(self):
     if self.camera_func in ["capture", 'menu']:

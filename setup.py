@@ -4,7 +4,7 @@ use_setuptools()
 from setuptools import setup, find_packages
 
 setup(name='remote_buttons',
-      version='1.0.3',
+      version='1.0.4',
       author='Aaron Watkins',
       author_email='ac.watkins80@gmail.com',
       description='Control a pi camera remotely with REST.',
