@@ -81,54 +81,6 @@ class CameraButtons(object):
     logger.info("Camera is previewing: {0}".format(response))
     return True if response == 'True' else False
 
-  def up(self):
-    long_press = False
-    self.up_handler(long_press)
-
-  def long_up(self):
-    long_press = True
-    self.up_handler(long_press)
-
-  def down(self):
-    long_press = False
-    self.down_handler(long_press)
-
-  def long_down(self):
-    long_press = True
-    self.down_handler(long_press)
-
-  def left(self):
-    long_press = False
-    self.left_handler(long_press)
-
-  def long_left(self):
-    long_press = True
-    self.left_handler(long_press)
-
-  def right(self):
-    long_press = False
-    self.right_handler(long_press)
-
-  def long_right(self):
-    long_press = True
-    self.right_handler(long_press)
-
-  def photo_bttn(self):
-    long_press = False
-    self.photo_handler(long_press)
-
-  def long_photo_bttn(self):
-    long_press = True
-    self.photo_handler(long_press)
-
-  def select(self):
-    long_press = False
-    self.select_handler(long_press)
-
-  def long_select(self):
-    long_press = True
-    self.select_handler(long_press)
-
   def up_handler(self, was_long_press):
     if self.mode == 'camera':
       self.short_or_long_press_func(was_long_press, self.cam_mode_up, CameraButtons.shutdown)
@@ -161,6 +113,14 @@ class CameraButtons(object):
       self.short_or_long_press_func(was_long_press, self.photo, self.obj_recognition)
     else:
       self.short_or_long_press_func(was_long_press, self.pass_func, self.obj_recognition)
+
+def short_or_long_press_func(was_long_press, short_func, long_func):
+  if was_long_press:
+    logger.debug("Running long function, {0}".format(long_func))
+    long_func()
+  else:
+    logger.debug("Running short function, {0}".format(short_func))
+    short_func()
 
   def photo(self):
     if self.camera_func in ["capture", 'menu']:
