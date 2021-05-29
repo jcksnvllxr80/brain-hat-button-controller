@@ -27,6 +27,7 @@ class CameraButtons(object):
     self.camera_funcs = ['menu', 'capture', 'video', 'stopmotion', 'timelapse']
     self.default_func = 'none'
     self.default_funcs = ['none', 'preview_stream']
+    self.camera_funcs_with_select_feature = {'stopmotion': self.end_stopmotion_scene}
     self.pi_cam_app_settings = {}
     self.stream_settings = {}
     subprocess.Popen(HOME_DIR + "pi_cam_app")
@@ -83,65 +84,71 @@ class CameraButtons(object):
 
   def up_handler(self, was_long_press):
     if self.mode == 'camera':
-      self.short_or_long_press_func(was_long_press, self.cam_mode_up, CameraButtons.shutdown)
+      return self.short_or_long_press_func(was_long_press, self.cam_mode_up, CameraButtons.shutdown)
     else:
-      self.short_or_long_press_func(was_long_press, self.pass_func, CameraButtons.shutdown)
+      return self.short_or_long_press_func(was_long_press, self.pass_func, CameraButtons.shutdown)
 
   def down_handler(self, was_long_press):
     if self.mode == 'camera':
-      self.short_or_long_press_func(was_long_press, self.cam_mode_down, self.pi_cam_app)
+      return self.short_or_long_press_func(was_long_press, self.cam_mode_down, self.pi_cam_app)
     else:
-      self.short_or_long_press_func(was_long_press, self.pass_func, self.pi_cam_app)
+      return self.short_or_long_press_func(was_long_press, self.pass_func, self.pi_cam_app)
 
   def left_handler(self, was_long_press):
     if self.mode == 'camera':
-      self.short_or_long_press_func(was_long_press, self.left_value, self.left_cam_func)
+      return self.short_or_long_press_func(was_long_press, self.left_value, self.left_cam_func)
     else:
-      self.short_or_long_press_func(was_long_press, self.pass_func, self.left_default_func)
+      return self.short_or_long_press_func(was_long_press, self.pass_func, self.left_default_func)
 
   def right_handler(self, was_long_press):
     if self.mode == 'camera':
-      self.short_or_long_press_func(was_long_press, self.right_value, self.right_cam_func)
+      return self.short_or_long_press_func(was_long_press, self.right_value, self.right_cam_func)
     else:
-      self.short_or_long_press_func(was_long_press, self.pass_func, self.right_default_func)
+      return self.short_or_long_press_func(was_long_press, self.pass_func, self.right_default_func)
 
   def select_handler(self, was_long_press):
-    self.short_or_long_press_func(was_long_press, self.select_func, CameraButtons.reboot)
+    return self.short_or_long_press_func(was_long_press, self.select_func, CameraButtons.reboot)
 
   def photo_handler(self, was_long_press):
     if self.mode == 'camera':
-      self.short_or_long_press_func(was_long_press, self.photo, self.obj_recognition)
+      return self.short_or_long_press_func(was_long_press, self.photo, self.pass_func)
     else:
-      self.short_or_long_press_func(was_long_press, self.pass_func, self.obj_recognition)
+      return self.short_or_long_press_func(was_long_press, self.pass_func, self.pass_func)
+
+  def photo_plus_objrecog_handler(self, was_long_press):
+    if self.mode == 'camera':
+      return self.short_or_long_press_func(was_long_press, self.photo, self.obj_recognition)
+    else:
+      return self.short_or_long_press_func(was_long_press, self.pass_func, self.obj_recognition)
 
   @staticmethod
   def short_or_long_press_func(was_long_press, short_func, long_func):
     if was_long_press:
       logger.debug("Running long function, {0}".format(long_func))
-      long_func()
+      return long_func()
     else:
       logger.debug("Running short function, {0}".format(short_func))
-      short_func()
+      return short_func()
 
   def photo(self):
     if self.camera_func in ["capture", 'menu']:
       logger.info("Taking photo")
-      self.make_get_api_call("http://127.0.0.1:{0}/take_photo/{1}".format(self.pi_cam_app_settings['port'], self.create_new_unique_filename()))
+      return self.make_get_api_call("http://127.0.0.1:{0}/take_photo/{1}".format(self.pi_cam_app_settings['port'], self.create_new_unique_filename()))
     elif self.camera_func == 'video':
       logger.info("recording video")
-      self.make_get_api_call("http://127.0.0.1:{0}/record_video/{1}_vid".format(self.pi_cam_app_settings['port'], self.create_new_unique_filename()))
+      return self.make_get_api_call("http://127.0.0.1:{0}/record_video/{1}_vid".format(self.pi_cam_app_settings['port'], self.create_new_unique_filename()))
     elif self.camera_func == 'stopmotion':
       logger.info("Adding stopmotion frame")
-      self.make_get_api_call("http://127.0.0.1:{0}/stopmotion/add_frame".format(self.pi_cam_app_settings['port']))
+      return self.make_get_api_call("http://127.0.0.1:{0}/stopmotion/add_frame".format(self.pi_cam_app_settings['port']))
     elif self.camera_func == 'timelapse':
       logger.info("recording timelapse")
-      self.make_get_api_call("http://127.0.0.1:{0}/record_timelapse/{1}_timelapse".format(self.pi_cam_app_settings['port'], self.create_new_unique_filename()))
+      return self.make_get_api_call("http://127.0.0.1:{0}/record_timelapse/{1}_timelapse".format(self.pi_cam_app_settings['port'], self.create_new_unique_filename()))
     else:
-      self.pass_func()
+      return self.pass_func()
 
   def end_stopmotion_scene(self):
     logger.info("Ending stopmotion scene")
-    self.make_get_api_call("http://127.0.0.1:{0}/stopmotion/end/{1}_stopmotion".format(self.pi_cam_app_settings['port'], self.create_new_unique_filename()))
+    return self.make_get_api_call("http://127.0.0.1:{0}/stopmotion/end/{1}_stopmotion".format(self.pi_cam_app_settings['port'], self.create_new_unique_filename()))
 
   def create_new_unique_filename(self):
     return "{0}".format(datetime.now().strftime("%Y%m%d_%H%M%S"))
@@ -150,43 +157,43 @@ class CameraButtons(object):
     self.kill_pid_or_start_func(tf_obj_recognition_pid_str, self.start_tf_obj_recognition)
 
   def pi_cam_app(self):
-    self.start_or_stop_pi_cam_preview()
+    return self.start_or_stop_pi_cam_preview()
 
   def cam_mode_up(self):
     if self.camera_func == 'menu':
-      self.next_menu_item('up')
+      return self.next_menu_item('up')
     else:
-      self.cam_zoom('in')
+      return self.cam_zoom('in')
 
   def cam_mode_down(self):
     if self.camera_func == 'menu':
-      self.next_menu_item('down')
+      return self.next_menu_item('down')
     else:
-      self.cam_zoom('out')
+      return self.cam_zoom('out')
 
   def next_menu_item(self, dir):
-    self.make_get_api_call("http://127.0.0.1:{0}/next_menu_item/{1}".format(self.pi_cam_app_settings['port'], dir))
+    return self.make_get_api_call("http://127.0.0.1:{0}/next_menu_item/{1}".format(self.pi_cam_app_settings['port'], dir))
 
   def cam_zoom(self, dir):
-    self.make_get_api_call("http://127.0.0.1:{0}/zoom/{1}".format(self.pi_cam_app_settings['port'], dir))
+    return self.make_get_api_call("http://127.0.0.1:{0}/zoom/{1}".format(self.pi_cam_app_settings['port'], dir))
 
   def left_value(self):
-    self.next_value('left')
+    return self.next_value('left')
 
   def right_value(self):
-    self.next_value('right')
+    return self.next_value('right')
 
   def next_value(self,dir):
     if self.camera_func == 'menu':
-      self.make_get_api_call("http://127.0.0.1:{0}/next_value/{1}".format(self.pi_cam_app_settings['port'], dir))
+      return self.make_get_api_call("http://127.0.0.1:{0}/next_value/{1}".format(self.pi_cam_app_settings['port'], dir))
     else:
-      self.pass_func()
+      return self.pass_func()
 
   def left_cam_func(self):
-    self.next_cam_function('left')
+    return self.next_cam_function('left')
 
   def right_cam_func(self):
-    self.next_cam_function('right')
+    return self.next_cam_function('right')
 
   def next_cam_function(self, dir):
     current_cam_func_ind = self.camera_funcs.index(self.camera_func)
@@ -201,13 +208,13 @@ class CameraButtons(object):
       else:
         next_cam_func = self.camera_funcs[current_cam_func_ind + 1]
     self.change_camera_func(next_cam_func)
-    self.make_get_api_call("http://127.0.0.1:{0}/display_and_speak/Function/{1}".format(self.pi_cam_app_settings['port'], next_cam_func))
+    return self.make_get_api_call("http://127.0.0.1:{0}/display_and_speak/Function/{1}".format(self.pi_cam_app_settings['port'], next_cam_func))
 
   def left_default_func(self):
-    self.next_default_function('left')
+    return self.next_default_function('left')
 
   def right_default_func(self):
-    self.next_default_function('right')
+    return self.next_default_function('right')
 
   def next_default_function(self, dir):
     current_default_func_ind = self.default_funcs.index(self.default_func)
@@ -222,7 +229,7 @@ class CameraButtons(object):
       else:
         next_default_func = self.default_funcs[current_default_func_ind + 1]
     self.change_default_func(next_default_func)
-    self.execute_default_func(next_default_func)
+    return self.execute_default_func(next_default_func)
 
   @staticmethod
   def make_get_api_call(api_call_str):
@@ -261,20 +268,24 @@ class CameraButtons(object):
   @staticmethod
   def reboot():
     os.system("sudo reboot now")
+    return "Rebooting now."
 
   @staticmethod
   def shutdown():
     os.system("sudo shutdown -h now")
+    return "Shutting down now."
 
   def pass_func(self):
-    logger.warning("This function has not been implemented for mode: \'{0}\',  camera function: \'{1}\'".format(self.mode, self.camera_func))
+    message = "This function has not been implemented for mode: \'{0}\',  camera function: \'{1}\'".format(self.mode, self.camera_func)
+    logger.warning(message)
+    return message
 
   def select_func(self):
+    function = "nothing"
     if self.camera_func:
-      camera_funcs_with_select_feature = {
-          'stopmotion': self.end_stopmotion_scene,
-      }
-      camera_funcs_with_select_feature.get(self.camera_func, self.pass_func)()
+      self.camera_funcs_with_select_feature.get(self.camera_func, self.pass_func)()
+      action = self.camera_func
+    return  "Ran \"select\" function for {0}.".format(function)
 
   def start_preview_stream(self):
     os.system("raspivid -n -ih -t 0 -rot 0 -w {0} -h {1} -fps {2} -b {3} -o - | ncat -lkv4 {4} &".format(
@@ -291,3 +302,4 @@ class CameraButtons(object):
     if func == 'preview_stream':
       self.pi_cam_preview('stop')
       self.start_preview_stream()
+    return "Success!"
