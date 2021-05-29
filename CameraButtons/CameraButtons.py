@@ -236,6 +236,7 @@ class CameraButtons(object):
     logger.info("Making a GET call to \'{0}\'".format(api_call_str))
     response = requests.get(api_call_str)
     logger.info("Response from api call: {0}".format(response.content.decode("utf-8")))
+    return response
 
   @staticmethod
   def get_pid(get_pid_cmd_str):
