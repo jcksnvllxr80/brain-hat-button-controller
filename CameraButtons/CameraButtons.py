@@ -73,7 +73,7 @@ class CameraButtons(object):
     subprocess.Popen("{0}tf_obj_recognition".format(HOME_DIR))
 
   def pi_cam_preview(self, action):
-    self.make_get_api_call("http://127.0.0.1:{0}/pi_cam_preview/{1}".format(self.pi_cam_app_settings['port'], action))
+    return self.make_get_api_call("http://127.0.0.1:{0}/pi_cam_preview/{1}".format(self.pi_cam_app_settings['port'], action))
 
   def pi_cam_is_previewing(self):
     api_call_str = "http://127.0.0.1:{0}/is_previewing".format(self.pi_cam_app_settings['port'])
@@ -254,8 +254,9 @@ class CameraButtons(object):
       func()
 
   def start_or_stop_pi_cam_preview(self):
+    message = "Oddly, no action was taken."
     if self.pi_cam_is_previewing():
-      self.pi_cam_preview('stop')
+      message = self.pi_cam_preview('stop')
       self.change_mode()
     else:
       pid = CameraButtons.get_pid(tf_obj_recognition_pid_str)
@@ -263,7 +264,8 @@ class CameraButtons(object):
         CameraButtons.kill_pid(pid)
       self.change_mode('camera')
       self.change_camera_func()
-      self.pi_cam_preview('start')
+      message = self.pi_cam_preview('start')
+    return message
 
   @staticmethod
   def reboot():
