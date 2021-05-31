@@ -84,6 +84,9 @@ TIMELAPSE_DIR = HOME_DIR + "timelapse/"
 APP_DIR = HOME_DIR + "brain-hat-button-controller/"
 CONFIG_FILE = APP_DIR + "conf/application.yaml"
 pi_cam_app_settings = {}
+camera_settings = {}
+stream_settings = {}
+memory_stream_settings = {}
 current_menu_item = menu_items[0]
 stopmotion_frame = 0
 original_base_filepath = ''
@@ -107,6 +110,9 @@ def setup():
   global pi_cam_app_settings
   global zoom_index
   global timelapse_started
+  global camera_settings
+  global stream_settings
+  global memory_stream_settings
   zoom_index = 0
   timelapse_started = False
   menu_items_dict = {
@@ -165,6 +171,8 @@ def setup():
   # read config dict's into more specific variables
   pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].items()}
   camera_settings = {k: v for k, v in config_file['camera'].items()}
+  stream_settings = {k: v for k, v in config_file['stream'].items()}
+  memory_stream_settings = {k: v for k, v in config_file['memory_stream'].items()}
   current_menu_values = {
     'photo_effect': camera_settings['photo_effect'],
     'resolution': literal_eval(camera_settings['resolution']),
@@ -303,10 +311,7 @@ def handle_pi_cam_preview_request(action):
   if action == "start":
     if camera.closed:
       camera = PiCamera()
-    load_camera_settings_with_config()
-    camera.start_preview()
-    camera.preview_fullscreen = True
-    display_and_speak('Mode', 'camera')
+    start_camera_mode()
     msg = "Started pi cam preview."
   else:
     camera.stop_preview()
@@ -314,6 +319,13 @@ def handle_pi_cam_preview_request(action):
     msg = "Stopped and closed pi cam preview."
   logger.info(msg)
   return msg
+
+def start_camera_mode():
+  load_camera_settings_with_config()
+  camera.start_preview()
+  camera.preview_fullscreen = True
+  Thread(target=stream_video_to_memory, args=('memory_stream', camera_settings['splitter_port1_format'])).start()
+  display_and_speak('Mode', 'camera')
 
 def load_camera_settings_with_config():
   for menu_item in menu_items:
@@ -382,7 +394,7 @@ def record(filepath):
     action = "Stopping"
   else:
     action = "Starting"
-    camera.start_recording(filepath, format=video_format)
+    camera.start_recording(filepath, format=video_format, splitter_port=2)
   logging.info("{0} video recording.".format(action))
   Thread(target=set_image_text, args=('set_image_text', 3, 'Video', action, True)).start()
 
@@ -664,17 +676,27 @@ def set_image_text(thread_name, wait_seconds, display_str, value_name, speak=Non
   camera.annotate_text = ''
   logger.info("Thread \'{0}\': finishing".format(thread_name))
 
-def stream_video_to_network(cam):
-    server_socket = socket.socket()
-    server_socket.bind(('0.0.0.0', 9090))
-    server_socket.listen(0)
-    while True:
-        connection = server_socket.accept()[0].makefile('wb')
-        cam.start_recording(connection, format='h264', resize=(640, 480))
+def stream_video_to_network(thread_name):
+  logger.info("Thread \'{0}\': starting".format(thread_name))
+  logger.debug("Memory stream format: {0}; splitter_port: {1}".format(
+      stream_settings['format'], stream_settings['splitter_port']))
+  server_socket = socket.socket()
+  server_socket.bind((stream_settings['ip'], stream_settings['port']))
+  logger.debug("Listening on: {0}:{1}".format(stream_settings['ip'], stream_settings['port']))
+  server_socket.listen(0)
+  while True:
+    connection = server_socket.accept()[0].makefile('wb')
+    camera.start_recording(connection, format=stream_settings['format'], resize=stream_settings['resize'],
+        splitter_port=stream_settings['splitter_port'])
+  logger.info("Thread \'{0}\': finishing".format(thread_name))
 
-def stream_video_to_memory(cam):
-    stream = BytesIO()
-    cam.start_recording(stream, format='mjpeg', quality=23)
+def stream_video_to_memory(thread_name):
+  logger.info("Thread \'{0}\': starting".format(thread_name))
+  logger.debug("Memory stream format: {0}; splitter_port: {1}".format(
+      memory_stream_settings['format'], memory_stream_settings['splitter_port']))
+  stream = BytesIO()
+  camera.start_recording(stream, format=memory_stream_settings['format'], quality=memory_stream_settings['quality'])
+  logger.info("Thread \'{0}\': finishing".format(thread_name))
 
 def exception_handler(exc_type, exc_value, exc_tb):
   err_str = str(format_exception(exc_type, exc_value, exc_tb))

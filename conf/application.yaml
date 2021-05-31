@@ -5,7 +5,9 @@ camera:
   video_format: h264
   exposure_mode: auto
   photo_effect: solarize
-  resolution: (1332, 990)
+  resolution: (4056, 3040)
+  splitter_port3_resize: (640, 480)
+  splitter_port3_format: h264
   speaker_volume: 60
   meter_mode: average
   horizontal_flip: False
@@ -28,8 +30,12 @@ pi_cam_app:
   port: 8099
   gui: False
 stream:
+  ip: 0.0.0.0
   port: 9090
-  width: 1920
-  height: 1080
-  fps: 24
-  bits: 1000000
+  format: h264
+  resize: (640, 480)
+  splitter_port: 0
+memory_stream:
+  format: mjpeg
+  quality: 23
+  splitter_port: 1
