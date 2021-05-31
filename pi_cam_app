@@ -19,6 +19,7 @@ import sys
 import yaml
 import logging
 from ast import literal_eval
+from io import BytesIO
 from traceback import format_exception
 from threading import Thread
 from picamera import PiCamera
