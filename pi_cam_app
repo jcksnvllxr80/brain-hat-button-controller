@@ -326,8 +326,9 @@ def start_camera_mode():
   load_camera_settings_with_config()
   camera.start_preview()
   camera.preview_fullscreen = True
-  Thread(target=stream_video_to_memory, args=('memory_stream',)).start()
-  Thread(target=stream_video_to_network, args=('network_stream',)).start()
+  if camera_settings['streaming']:
+    Thread(target=stream_video_to_memory, args=('memory_stream',)).start()
+    Thread(target=stream_video_to_network, args=('network_stream',)).start()
   display_and_speak('Mode', 'camera')
 
 def load_camera_settings_with_config():
@@ -397,7 +398,10 @@ def record(filepath):
     action = "Stopping"
   else:
     action = "Starting"
-    camera.start_recording(filepath, format=video_format, splitter_port=2)
+    if camera_settings['streaming']:
+      camera.start_recording(filepath, format=video_format, splitter_port=2)
+    else:
+      camera.start_recording(filepath, format=video_format)
   logging.info("{0} video recording.".format(action))
   Thread(target=set_image_text, args=('set_image_text', 3, 'Video', action, True)).start()
 
