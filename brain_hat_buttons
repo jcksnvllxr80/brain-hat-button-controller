@@ -6,7 +6,7 @@ import board
 import requests
 from digitalio import DigitalInOut, Direction, Pull
 import subprocess
-import CameraButtons
+from CameraButtons import CameraButtons
 import os
 import logging
 from datetime import datetime
