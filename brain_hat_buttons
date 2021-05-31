@@ -6,6 +6,7 @@ import board
 import requests
 from digitalio import DigitalInOut, Direction, Pull
 import subprocess
+import CameraButtons
 import os
 import logging
 from datetime import datetime
@@ -16,13 +17,10 @@ JOYLEFT_PIN = board.D22
 JOYUP_PIN = board.D23
 JOYRIGHT_PIN = board.D24
 JOYSELECT_PIN = board.D16
+camera_buttons = CameraButtons.CameraButtons()
+brain_hat_buttons_settings = {}
 HOME_DIR = '/home/pi/brain-hat-button-controller/'
 
-mode = 'default'
-camera_func = 'none'
-camera_funcs = ['menu', 'capture', 'video', 'stopmotion', 'timelapse']
-default_func = 'none'
-default_funcs = ['none', 'preview_stream']
 buttons = [BUTTON_PIN, JOYUP_PIN, JOYDOWN_PIN,
            JOYLEFT_PIN, JOYRIGHT_PIN, JOYSELECT_PIN]
 for i,pin in enumerate(buttons):
@@ -30,13 +28,8 @@ for i,pin in enumerate(buttons):
   buttons[i].direction = Direction.INPUT
   buttons[i].pull = Pull.UP
 button, joyup, joydown, joyleft, joyright, joyselect = buttons
-tf_obj_recognition_pid_str = "ps aux | grep -ivE \"(grep|venv)\" | grep pitft_labeled_output.py | awk \'{print $2}\'"
-stream_preview_pid_str = "ps aux | grep -ivE \"(grep)\" | grep ncat | awk \'{print $2}\'"
 HOME_DIR = "/home/pi/brain-hat-button-controller/"
-CONFIG_FILE = HOME_DIR + "conf/application.yaml"
-pi_cam_app_settings = {}
-stream_settings = {}
-subprocess.Popen(HOME_DIR + "pi_cam_app")
+CONFIG_FILE = HOME_DIR + "conf/brain_hat_buttons.yaml"
 
 def init_logging():
   logging_logger = logging.getLogger(__name__)
@@ -51,12 +44,10 @@ def init_logging():
   return logging_logger
 
 def config():
-  global pi_cam_app_settings
-  global stream_settings
+  global brain_hat_buttons_settings
   config_file = read_config_file()
   # read config dict's into more specific variables
-  pi_cam_app_settings = {k: v for k, v in config_file['pi_cam_app'].items()}
-  stream_settings = {k: v for k, v in config_file['stream'].items()}
+  brain_hat_buttons_settings = {k: v for k, v in config_file['stream'].items()}
 
 def read_config_file():
   # read config yaml file into dictionaries
@@ -64,186 +55,6 @@ def read_config_file():
   with open(CONFIG_FILE, 'r') as ymlfile:
     config_file = yaml.full_load(ymlfile)
   return config_file
-
-def change_mode(new_mode='default'):
-  global mode
-  mode = new_mode
-  if mode == 'default':
-    change_camera_func('none')
-  logger.info("Mode changed to {0}".format(mode))
-
-def change_camera_func(new_camera_func='capture'):
-  global camera_func
-  camera_func = new_camera_func
-  logger.info("Camera function changed to {0}".format(camera_func))
-
-def change_default_func(new_default_func='none'):
-  global default_func
-  default_func = new_default_func
-  logger.info("Default function changed to {0}".format(default_func))
-
-def start_tf_obj_recognition():
-  # NOTE: in order to get the speaker to work on the brainCraft hat, the following line
-  # pipes the detected text into sudo festival in line 150 of the link below.
-  # the reason the speaker stuff doesnt just work is that i am nott running the code as root.
-  # https://github.com/adafruit/rpi-vision/blob/master/tests/pitft_labeled_output.py
-  #######################################################################
-  # os.system('echo %s | sudo festival --tts & ' % detecttext)  # this is the changed line
-  #######################################################################
-  if pi_cam_is_previewing():
-    pi_cam_preview('stop')
-    change_mode()
-  os.environ["DISPLAY"] = ":0"
-  subprocess.Popen("{0}tf_obj_recognition".format(HOME_DIR))
-
-def pi_cam_preview(action):
-  make_get_api_call("http://127.0.0.1:{0}/pi_cam_preview/{1}".format(pi_cam_app_settings['port'], action))
-
-def pi_cam_is_previewing():
-  api_call_str = "http://127.0.0.1:{0}/is_previewing".format(pi_cam_app_settings['port'])
-  logger.info("Making a GET call to \'{0}\'".format(api_call_str))
-  response = requests.get(api_call_str).content.decode("utf-8")
-  logger.info("Camera is previewing: {0}".format(response))
-  return True if response == 'True' else False
-
-def photo():
-  if camera_func in ["capture", 'menu']:
-    logger.info("Taking photo")
-    make_get_api_call("http://127.0.0.1:{0}/take_photo/{1}".format(pi_cam_app_settings['port'], create_new_unique_filename()))
-  elif camera_func == 'video':
-    logger.info("recording video")
-    make_get_api_call("http://127.0.0.1:{0}/record_video/{1}_vid".format(pi_cam_app_settings['port'], create_new_unique_filename()))
-  elif camera_func == 'stopmotion':
-    logger.info("Adding stopmotion frame")
-    make_get_api_call("http://127.0.0.1:{0}/stopmotion/add_frame".format(pi_cam_app_settings['port']))
-  elif camera_func == 'timelapse':
-    logger.info("recording timelapse")
-    make_get_api_call("http://127.0.0.1:{0}/record_timelapse/{1}_timelapse".format(pi_cam_app_settings['port'], create_new_unique_filename()))
-  else:
-    pass_func()
-
-def end_stopmotion_scene():
-  logger.info("Ending stopmotion scene")
-  make_get_api_call("http://127.0.0.1:{0}/stopmotion/end/{1}_stopmotion".format(pi_cam_app_settings['port'], create_new_unique_filename()))
-
-def create_new_unique_filename():
-  return "{0}".format(datetime.now().strftime("%Y%m%d_%H%M%S"))
-
-def obj_recognition():
-  kill_pid_or_start_func(tf_obj_recognition_pid_str, start_tf_obj_recognition)
-
-def pi_cam_app():
-  start_or_stop_pi_cam_preview()
-
-def cam_mode_up():
-  if camera_func == 'menu':
-    next_menu_item('up')
-  else:
-    cam_zoom('in')
-
-def cam_mode_down():
-  if camera_func == 'menu':
-    next_menu_item('down')
-  else:
-    cam_zoom('out')
-
-def next_menu_item(dir):
-  make_get_api_call("http://127.0.0.1:{0}/next_menu_item/{1}".format(pi_cam_app_settings['port'], dir))
-
-def cam_zoom(dir):
-  make_get_api_call("http://127.0.0.1:{0}/zoom/{1}".format(pi_cam_app_settings['port'], dir))
-
-def left_value():
-  next_value('left')
-
-def right_value():
-  next_value('right')
-
-def next_value(dir):
-  if camera_func == 'menu':
-    make_get_api_call("http://127.0.0.1:{0}/next_value/{1}".format(pi_cam_app_settings['port'], dir))
-  else:
-    pass_func()
-
-def left_cam_func():
-  next_cam_function('left')
-
-def right_cam_func():
-  next_cam_function('right')
-
-def next_cam_function(dir):
-  current_cam_func_ind = camera_funcs.index(camera_func)
-  if dir == 'left':
-    if current_cam_func_ind == 0:
-      next_cam_func = camera_funcs[len(camera_funcs) - 1]
-    else:
-      next_cam_func = camera_funcs[current_cam_func_ind - 1]
-  else:
-    if current_cam_func_ind == len(camera_funcs) - 1:
-      next_cam_func = camera_funcs[0]
-    else:
-      next_cam_func = camera_funcs[current_cam_func_ind + 1]
-  change_camera_func(next_cam_func)
-  make_get_api_call("http://127.0.0.1:{0}/display_and_speak/Function/{1}".format(pi_cam_app_settings['port'], next_cam_func))
-
-def left_default_func():
-  next_default_function('left')
-
-def right_default_func():
-  next_default_function('right')
-
-def next_default_function(dir):
-  current_default_func_ind = default_funcs.index(default_func)
-  if dir == 'left':
-    if current_default_func_ind == 0:
-      next_default_func = default_funcs[len(default_funcs) - 1]
-    else:
-      next_default_func = default_funcs[current_default_func_ind - 1]
-  else:
-    if current_default_func_ind == len(default_funcs) - 1:
-      next_default_func = default_funcs[0]
-    else:
-      next_default_func = default_funcs[current_default_func_ind + 1]
-  change_default_func(next_default_func)
-  execute_default_func(next_default_func)
-
-def make_get_api_call(api_call_str):
-  logger.info("Making a GET call to \'{0}\'".format(api_call_str))
-  response = requests.get(api_call_str)
-  logger.info("Response from api call: {0}".format(response.content.decode("utf-8")))
-
-def joystick_up_handler(was_long_press):
-  if mode == 'camera':
-    short_or_long_press_func(was_long_press, cam_mode_up, shutdown)
-  else:
-    short_or_long_press_func(was_long_press, pass_func, shutdown)
-
-def joystick_down_handler(was_long_press):
-  if mode == 'camera':
-    short_or_long_press_func(was_long_press, cam_mode_down, pi_cam_app)
-  else:
-    short_or_long_press_func(was_long_press, pass_func, pi_cam_app)
-
-def joystick_left_handler(was_long_press):
-  if mode == 'camera':
-    short_or_long_press_func(was_long_press, left_value, left_cam_func)
-  else:
-    short_or_long_press_func(was_long_press, pass_func, left_default_func)
-
-def joystick_right_handler(was_long_press):
-  if mode == 'camera':
-    short_or_long_press_func(was_long_press, right_value, right_cam_func)
-  else:
-    short_or_long_press_func(was_long_press, pass_func, right_default_func)
-
-def joystick_select_handler(was_long_press):
-  short_or_long_press_func(was_long_press, select_func, reboot)
-
-def button_handler(was_long_press):
-  if mode == 'camera':
-    short_or_long_press_func(was_long_press, photo, obj_recognition)
-  else:
-    short_or_long_press_func(was_long_press, pass_func, obj_recognition)
 
 def get_press_length(button, button_name):
   long_pressed = 0
@@ -260,43 +71,17 @@ def get_press_length(button, button_name):
 
 def button_check():
   if not button.value:
-    button_handler(get_press_length(button, "Button"))
+    camera_buttons.photo_plus_objrecog_handler(get_press_length(button, "Button"))
   if not joyup.value:
-    joystick_up_handler(get_press_length(joyup, "Joystick up"))
+    camera_buttons.up_handler(get_press_length(joyup, "Joystick up"))
   if not joydown.value:
-    joystick_down_handler(get_press_length(joydown, "Joystick down"))
+    camera_buttons.down_handler(get_press_length(joydown, "Joystick down"))
   if not joyleft.value:
-    joystick_left_handler(get_press_length(joyleft, "Joystick left"))
+    camera_buttons.left_handler(get_press_length(joyleft, "Joystick left"))
   if not joyright.value:
-    joystick_right_handler(get_press_length(joyright, "Joystick right"))
+    camera_buttons.right_handler(get_press_length(joyright, "Joystick right"))
   if not joyselect.value:
-    joystick_select_handler(get_press_length(joyselect, "Joystick select"))
-
-def get_pid(get_pid_cmd_str):
-  return subprocess.check_output([get_pid_cmd_str], shell=True).decode().rstrip()
-
-def kill_pid(pid):
-  os.system("kill -9 " + str(pid))
-
-def kill_pid_or_start_func(get_pid_str, func):
-  pid = get_pid(get_pid_str)
-  if pid:
-    kill_pid(pid)
-    change_mode()
-  else:
-    func()
-
-def start_or_stop_pi_cam_preview():
-  if pi_cam_is_previewing():
-    pi_cam_preview('stop')
-    change_mode()
-  else:
-    pid = get_pid(tf_obj_recognition_pid_str)
-    if pid:
-      kill_pid(pid)
-    change_mode('camera')
-    change_camera_func()
-    pi_cam_preview('start')
+    camera_buttons.select_handler(get_press_length(joyselect, "Joystick select"))
 
 def short_or_long_press_func(was_long_press, short_func, long_func):
   if was_long_press:
@@ -306,37 +91,6 @@ def short_or_long_press_func(was_long_press, short_func, long_func):
     logger.debug("Running short function, {0}".format(short_func))
     short_func()
   time.sleep(0.35)
-
-def reboot():
-  os.system("sudo reboot now")
-
-def shutdown():
-  os.system("sudo shutdown -h now")
-
-def pass_func():
-  logger.warning("This function has not been implemented for mode: \'{0}\',  camera function: \'{1}\'".format(mode, camera_func))
-
-def select_func():
-  if camera_func:
-    camera_funcs_with_select_feature = {
-        'stopmotion': end_stopmotion_scene,
-    }
-    camera_funcs_with_select_feature.get(camera_func, pass_func)()
-
-def start_preview_stream():
-  os.system("raspivid -n -ih -t 0 -rot 0 -w {0} -h {1} -fps {2} -b {3} -o - | ncat -lkv4 {4} &".format(
-    stream_settings['width'], stream_settings['height'], stream_settings['fps'], stream_settings['bits'], stream_settings['port']))
-
-def stop_preview_stream():
-  pid = get_pid(stream_preview_pid_str)
-  if pid:
-    kill_pid(pid)
-
-def execute_default_func(func):
-  stop_preview_stream()
-  if func == 'preview_stream':
-    pi_cam_preview('stop')
-    start_preview_stream()
 
 if __name__ == '__main__':
   global logger
