@@ -95,7 +95,7 @@ def short_or_long_press_func(was_long_press, short_func, long_func):
 if __name__ == '__main__':
   global logger
   logger = init_logging()
-  config()
+  # config()
   while True:
     button_check()
     time.sleep(0.01)
