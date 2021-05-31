@@ -22,8 +22,7 @@ def stream_video_to_memory(cam):
     cam.start_recording(stream, format='mjpeg', quality=23)
 
 camera = picamera.PiCamera()
-# camera.resolution = (4056, 3040)
-camera.resolution = (2028, 1520)
+camera.resolution = (4056, 3040)
 camera.framerate = 24
 # Thread(target=stream_video_network, args=(camera,)).start()
 Thread(target=stream_video_to_memory, args=(camera,)).start()
