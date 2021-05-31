@@ -18,6 +18,7 @@ import os
 import sys
 import yaml
 import logging
+import socket
 from ast import literal_eval
 from io import BytesIO
 from traceback import format_exception
