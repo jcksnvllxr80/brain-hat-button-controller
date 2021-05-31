@@ -664,6 +664,18 @@ def set_image_text(thread_name, wait_seconds, display_str, value_name, speak=Non
   camera.annotate_text = ''
   logger.info("Thread \'{0}\': finishing".format(thread_name))
 
+def stream_video_to_network(cam):
+    server_socket = socket.socket()
+    server_socket.bind(('0.0.0.0', 9090))
+    server_socket.listen(0)
+    while True:
+        connection = server_socket.accept()[0].makefile('wb')
+        cam.start_recording(connection, format='h264', resize=(640, 480))
+
+def stream_video_to_memory(cam):
+    stream = BytesIO()
+    cam.start_recording(stream, format='mjpeg', quality=23)
+
 def exception_handler(exc_type, exc_value, exc_tb):
   err_str = str(format_exception(exc_type, exc_value, exc_tb))
   error_log = "An exception was encountered: " + err_str
