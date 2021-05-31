@@ -10,6 +10,7 @@
 - when a thread starts, kill the last thread
 - open a browser when to the locally streamed video when in camera mode or find another wya to display it.
   maybe find out how the tf gets it to the display
+- add gui (yaml entry for gui on or off already present)
 '''
 
 import time
