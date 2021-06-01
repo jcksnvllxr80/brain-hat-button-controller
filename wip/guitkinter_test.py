@@ -5,7 +5,7 @@ from tkinter import messagebox
 # initialise main window
 def init(win):
   win.title("Hello World application")
-  win.minsize(500, 100)
+  win.minsize(800, 480)
   btn.pack()
 
 # button callback
@@ -20,8 +20,12 @@ windowWidth = win.winfo_reqwidth()
 windowHeight = win.winfo_reqheight()
 
 # Gets both half the screen width/height and window width/height
-positionRight = int(win.winfo_screenwidth()/2 - windowWidth/2)
-positionDown = int(win.winfo_screenheight()/2 - windowHeight/2)
+# positionRight = int(win.winfo_screenwidth()/2 - windowWidth/2)
+# positionDown = int(win.winfo_screenheight()/2 - windowHeight/2)
+
+positionRight = 0
+positionDown = 0
+
 
 # Positions the window in the center of the page.
 win.geometry("+{}+{}".format(positionRight, positionDown))
