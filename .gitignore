@@ -5,3 +5,9 @@ CameraButtons/CameraButtons.pyc
 .gitignore
 .gitignore
 .vscode/settings.json
+CameraButtons/__pycache__/
+__pycache__/
+build/
+dist/
+ez_setup.pyc
+remote_buttons.egg-info/
