@@ -2,41 +2,41 @@ camera:
   annotate_background: green
   awb_mode: auto
   capture_format: png
-  video_format: h264
   exposure_mode: auto
-  photo_effect: solarize
-  resolution: (4056, 3040)
-  splitter_port3_resize: (640, 480)
-  splitter_port3_format: h264
-  speaker_volume: 60
+  horizontal_flip: false
+  iso: 0
+  menu_speech: false
   meter_mode: average
-  horizontal_flip: False
-  vertical_flip: False
-  tl_photo_intvl_in_seconds: 5
-  tl_playback_in_hundreth_s: 4
-  stopmotion_playback_fps: 10
-  iso: 0  # zero is auto
+  photo_effect: none
+  resolution: (4056, 3040)
   rotation: 0
   saturation: 0
   sharpness: 0
-  shutter_speed: 0  # zero is auto
-  video_denoise: True
-  video_stabilization: False
-  zoom_speech: False
-  menu_speech: False
-  value_speech: False
-  streaming: False
-pi_cam_app:
-  ip: 0.0.0.0
-  port: 8099
-  gui: False
-stream:
-  ip: 0.0.0.0
-  port: 9090
-  format: h264
-  resize: (640, 480)
-  splitter_port: 0
+  shutter_speed: 0
+  speaker_volume: 60
+  splitter_port3_format: h264
+  splitter_port3_resize: (640, 480)
+  stopmotion_playback_fps: 10
+  streaming: false
+  tl_photo_intvl_in_seconds: 5
+  tl_playback_in_hundreth_s: 4
+  value_speech: false
+  vertical_flip: false
+  video_denoise: true
+  video_format: h264
+  video_stabilization: false
+  zoom_speech: false
 memory_stream:
   format: mjpeg
   quality: 23
   splitter_port: 1
+pi_cam_app:
+  gui: false
+  ip: 0.0.0.0
+  port: 8099
+stream:
+  format: h264
+  ip: 0.0.0.0
+  port: 9090
+  resize: (640, 480)
+  splitter_port: 0
