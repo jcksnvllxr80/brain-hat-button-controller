@@ -4,13 +4,13 @@ from tkinter import messagebox
 
 # initialise main window
 def init(win):
-    win.title("Hello World application")
-    win.minsize(500, 100)
-    btn.pack()
+  win.title("Hello World application")
+  win.minsize(500, 100)
+  btn.pack()
 
 # button callback
 def hello():
-    messagebox.showinfo("Hello", "Pleased to meet you!")
+  messagebox.showinfo("Hello", "Pleased to meet you!")
 
 # create top-level window
 win = Tk()
