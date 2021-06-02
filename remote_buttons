@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import time
 import yaml
-import CameraButtons
+from CameraButtons import CameraButtons
 import logging
 from datetime import datetime
 from flask_cors import CORS
