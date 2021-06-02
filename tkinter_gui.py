@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from CameraButtons import CameraButtons
 import time
 
 class button_with_timer(tk.Button):
@@ -51,26 +52,27 @@ def init(win):
 
 # button callbacks
 def photo():
-  handle_photo_press(photo_btn.long_press)
+  camera_buttons.photo_handler(photo_btn.long_press)
 
 def select():
-  handle_select_press(select_btn.long_press)
+  camera_buttons.select_handler(select_btn.long_press)
 
 def up():
-  handle_up_press(up_btn.long_press)
+  camera_buttons.up_handler(up_btn.long_press)
 
 def down():
-  handle_down_press(down_btn.long_press)
+  camera_buttons.down_handler(down_btn.long_press)
 
 def left():
-  handle_left_press(left_btn.long_press)
+  camera_buttons.left_handler(left_btn.long_press)
 
 def right():
-  handle_right_press(right_btn.long_press)
+  camera_buttons.right_handler(right_btn.long_press)
 
 def menu():
-  handle_menu_press(menu_btn.long_press)
+  camera_buttons.menu_handler(menu_btn.long_press)
 
+camera_buttons = CameraButtons.CameraButtons()
 # create top-level window
 win = tk.Tk()
 win.wm_attributes('-type', 'splash')
