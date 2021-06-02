@@ -6,6 +6,7 @@ from CameraButtons import CameraButtons
 import logging
 from datetime import datetime
 from flask_cors import CORS
+from threading import Thread
 import tkinter as tk
 from tkinter import messagebox
 from flask import jsonify, Flask # package for the webapp
@@ -150,6 +151,11 @@ def menu():
   # handle_menu_press(menu_btn.long_press)
   pass
 
+def do_gui(thread_name):
+  logger.info("Thread \'{0}\': starting".format(thread_name))
+  tk.mainloop()
+  logger.info("Thread \'{0}\': finishing".format(thread_name))
+
 class button_with_timer(tk.Button):
 
   def __init__(self, container, text, command, width, height):
@@ -211,7 +217,7 @@ if __name__ == '__main__':
   logger = init_logging()
   config()
   init(win)
-  tk.mainloop()
+  Thread(target=do_gui, args=("TKinter GUI",)).start()
   init_web_app()
   while True:
     time.sleep(0.01)
