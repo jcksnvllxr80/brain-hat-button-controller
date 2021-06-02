@@ -210,8 +210,8 @@ if __name__ == '__main__':
   global logger
   logger = init_logging()
   config()
-  init_web_app()
   init(win)
   tk.mainloop()
+  init_web_app()
   while True:
     time.sleep(0.01)
