@@ -12,12 +12,14 @@
 
 [Unit]
 Description=remote_buttons listener and controller service
-After=local-fs.target basic.target
+After=local-fs.target graphical.target
 
 [Service]
 Type=idle
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=/root/.Xauthority
 User=pi
-ExecStart=/usr/bin/nohup /usr/bin/python /home/pi/brain-hat-button-controller/remote_buttons 2>&1 &
+ExecStart=/usr/bin/nohup /usr/bin/python3 /home/pi/brain-hat-button-controller/remote_buttons 2>&1 &
 
 [Install]
-WantedBy=basic.target
+WantedBy=graphical.target
