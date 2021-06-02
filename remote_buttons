@@ -147,7 +147,8 @@ def right():
   handle_right_press(right_btn.long_press)
 
 def menu():
-  handle_menu_press(menu_btn.long_press)
+  # handle_menu_press(menu_btn.long_press)
+  pass
 
 class button_with_timer(tk.Button):
 
