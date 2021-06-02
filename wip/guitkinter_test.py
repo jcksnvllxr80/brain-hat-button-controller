@@ -37,7 +37,7 @@ class button_with_timer(tk.Button):
 
 # initialise main window
 def init(win):
-  win.title("Hello World application")
+  win.title("Pi Camera Button Gui")
   win.minsize(800, 480)
   select_btn.pack()
   photo_btn.pack()
@@ -47,6 +47,7 @@ def init(win):
   right_btn.pack()
   menu_btn.pack()
   text_area.pack()
+  close_btn.pack()
 
 # button callbacks
 def photo():
@@ -72,6 +73,7 @@ def menu():
 
 # create top-level window
 win = tk.Tk()
+win.wm_attributes('-type', 'splash')
 win.attributes('-alpha',0.5)
 left_button_frame = tk.Frame(win)
 left_button_frame.pack(fill=tk.X, side=tk.LEFT)
@@ -83,6 +85,7 @@ positionDown = 0
 win.geometry("+{}+{}".format(positionRight, positionDown))
 
 text_area = tk.Text(right_button_frame, height=10, width=8)
+close_btn = tk.Button(left_button_frame, text='close', command=win.quit, width=8, height=3)
 select_btn = button_with_timer(right_button_frame, text="select", command=select, width=8, height=3)
 photo_btn = button_with_timer(right_button_frame, text="photo", command=photo, width=8, height=3)
 up_btn = button_with_timer(left_button_frame, text="up", command=up, width=8, height=3)
