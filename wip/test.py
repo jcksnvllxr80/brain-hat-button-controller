@@ -15,17 +15,17 @@ def stream_video_to_network(cam):
     server_socket.listen(0)
     while True:
         connection = server_socket.accept()[0].makefile('wb')
-        cam.start_recording(connection, format='h264', resize=(640, 480))
+        cam.start_recording(connection, format='h264', resize=(640, 480), inline_headers=True)
 
 def stream_video_to_memory(cam):
     stream = BytesIO()
     cam.start_recording(stream, format='mjpeg', quality=23)
 
 camera = picamera.PiCamera()
-camera.resolution = (4056, 3040)
+camera.resolution = (1920, 1080)
 camera.framerate = 24
-# Thread(target=stream_video_network, args=(camera,)).start()
-Thread(target=stream_video_to_memory, args=(camera,)).start()
+Thread(target=stream_video_to_network, args=(camera,)).start()
+# Thread(target=stream_video_to_memory, args=(camera,)).start()
 camera.start_recording('my_video1.h264', format='h264', resize=(640, 480), splitter_port=0)
 
 
