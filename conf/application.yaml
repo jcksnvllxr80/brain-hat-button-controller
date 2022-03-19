@@ -5,7 +5,7 @@ camera:
   exposure_mode: auto
   horizontal_flip: false
   iso: 0
-  menu_speech: false
+  menu_speech: true
   meter_mode: average
   photo_effect: none
   resolution: (4056, 3040)
@@ -20,7 +20,7 @@ camera:
   streaming: false
   tl_photo_intvl_in_seconds: 5
   tl_playback_in_hundreth_s: 4
-  value_speech: false
+  value_speech: true
   vertical_flip: false
   video_denoise: true
   video_format: h264
